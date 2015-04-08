@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<head>
+    <title>Project 3 - WebGL</title>
+    <script src='bower_components/threejs/build/three.js'></script>
+    <script src="vendor/require.js/require.js"></script>
+    <script src="vendor/three.js/examples/js/Detector.js"></script>
+    <script src="vendor/threex.windowresize.js"></script>
+    <script src="models/Car.js"></script>
+    <script src="models/Wheel.js"></script>
+    <script src="models/Ground.js"></script>
+    <script src="models/StreetLight.js"></script>
+    <script src="models/UFO.js"></script>
+    <script src="models/WeatherVaneBase.js"></script>
+    <script src="models/VaneSwivel.js"></script>
+   	<script src="models/Blades.js"></script>
+   	<script src="models/Fan.js"></script>
+    <style>
+        #cs-legend{
+            position:absolute;
+            width:100px;
+            height:100px;
+            z-index:999;
+        }
+        .x{
+            color:blue;
+        }
+        .y{
+            color:red;
+        }
+        .z{
+            color:green;
+        }
+
+    </style>
+</head>
+<body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'>
+    <img id="cs-legend" src="coord%20system%20legend.png" />
+    <div style="margin-left:105px">
+        | <i class="y">Q</i> | <i class="z">W</i> | <i class="y">E</i> |
+        These 6 keys control movement of selected object along corresponding colored axis.<br>
+        | <i class="x">A</i> | <i class="z">S</i> | <i class="x">D</i> |
+        Holding <b>SHIFT</b> + <i>key</i> rotates objects &nbsp;&nbsp;&nbsp;&nbsp;
+        | <i>T</i> | = car &nbsp;&nbsp;&nbsp;&nbsp;
+        | <i>C</i> | = camera &nbsp;&nbsp;&nbsp;&nbsp;
+        | <i>I</i> | = drive car forward &nbsp;&nbsp;&nbsp;&nbsp;<br>
+        | <i>K</i> | = drive car backward &nbsp;&nbsp;&nbsp;&nbsp;
+        | <i>space</i> | = start/stop animation &nbsp;&nbsp;&nbsp;&nbsp;
+        | <i>U</i> | = move UFO group &nbsp;&nbsp;&nbsp;&nbsp;
+        | <i>Z</i> | = speed up weathervane swivel
+    </div>
+    <script src="main.js"></script>
+<div id="graphicsbox"></div>
+</body>

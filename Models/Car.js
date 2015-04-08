@@ -1,0 +1,264 @@
+/**
+ * Created by Ryan on 3/24/2015.
+ */
+
+var Car = function () {
+    var CHASSIS_LEN = 10;
+    var CHASSIS_WIDTH = 4;
+    var CHASSIS_HEIGHT = 1.5;
+    var OFF_GROUND = 0.625;
+    var SUBDIV = 40;
+    var ROOF = 1;
+    var SECTION_LEN = CHASSIS_LEN / SUBDIV;
+    var vertexArrSize = 3 * SUBDIV * 2 * 2;
+
+    var geometry = new THREE.BufferGeometry();
+    var vertexArr = new Float32Array(vertexArrSize);
+    var normalArr = new Float32Array(vertexArrSize);
+    var indexArr = new Uint32Array((vertexArrSize - 12) * 2 + 24);  // (vertexArrSize / 3) * 3 - 12
+
+    // top chassis start
+    var topPoints = SUBDIV * 2;
+    var sectionHeight = CHASSIS_HEIGHT + OFF_GROUND;
+    var roofStart = topPoints * 0.3;
+    if(roofStart % 2 != 0){
+        roofStart += 1;
+    }
+    var roofEnd = topPoints * 0.75;
+    if(roofEnd % 2 != 0){
+        roofEnd += 1;
+    }
+    var n1 = new THREE.Vector3();
+    n1.x = 0;
+    n1.y = 0;
+    n1.z = 1;
+    for(var i = 0; i < topPoints; i=i+2){
+        if(i > roofStart && i < roofStart + 6){
+            sectionHeight = CHASSIS_HEIGHT + OFF_GROUND + (ROOF * (i - roofStart) * 0.17);
+            n1.y = -SECTION_LEN;
+            n1.z = 0.17;
+            n1.normalize();
+        }else if(i >= roofStart + 6 && i < roofEnd){
+            sectionHeight = CHASSIS_HEIGHT + OFF_GROUND + ROOF;
+            n1.y = 0;
+            n1.z = 1;
+        }else {
+            sectionHeight = CHASSIS_HEIGHT + OFF_GROUND;
+            n1.y = 0;
+            n1.z = 1;
+        }
+        vertexArr[3* i] = 0;
+        vertexArr[3 * i + 1] = i * SECTION_LEN / 2;
+        vertexArr[3 * i + 2] = sectionHeight;
+        vertexArr[3 * (i + 1)] = CHASSIS_WIDTH;
+        vertexArr[3 * (i + 1) + 1] = i * SECTION_LEN / 2;
+        vertexArr[3 * (i + 1) + 2] = sectionHeight;
+        normalArr[3* i] = n1.x;
+        normalArr[3 * i + 1] = n1.y;
+        normalArr[3 * i + 2] = n1.z;
+        normalArr[3 * (i + 1)] = n1.x;
+        normalArr[3 * (i + 1) + 1] = n1.y;
+        normalArr[3 * (i + 1) + 2] = n1.z;
+    }
+
+    var currIndex = 0;
+    for(var i = 1; i < topPoints - 2; i=i+2){
+        // first triangle of quad
+        indexArr[currIndex] = i - 1;
+        currIndex++;
+        indexArr[currIndex] = i;
+        currIndex++;
+        indexArr[currIndex] = i + 1;
+        currIndex++
+        // second triangle of quad
+        indexArr[currIndex] = i + 2;
+        currIndex++;
+        indexArr[currIndex] = i + 1;
+        currIndex++;
+        indexArr[currIndex] = i;
+        currIndex++;
+    }
+
+    // bottom chassis
+    n1.x = -1;
+    n1.y = 0;
+    n1.z = 0;
+    n1.normalize();
+    var tireSpace = 0;
+    var check = 0;
+    for(var i = topPoints; i < topPoints * 2; i=i+2){
+        check = i - topPoints;
+        if(check >= roofStart * 2 && check < roofEnd + 4){
+            tireSpace = OFF_GROUND;
+        }else if(check == 6 || check == 7 || check == 64 || check == 65){
+            tireSpace = OFF_GROUND + 0.5;
+        }else if(check == 8 || check == 9 || check == 66 || check == 67) {
+            tireSpace = OFF_GROUND + 0.75;
+        }else if(check == 10 || check == 11 || check == 68 || check == 69){
+            tireSpace = OFF_GROUND + 0.875;
+        }else if(check == 12 || check == 13 || check == 70 || check == 71){
+            tireSpace = OFF_GROUND + 0.875;
+        }else if(check == 14 || check == 15 || check == 72 || check == 73){
+            tireSpace = OFF_GROUND + 0.75;
+        }else if(check == 16 || check == 17 || check == 74 || check == 75){
+            tireSpace = OFF_GROUND + 0.5;
+        }else{
+            tireSpace = OFF_GROUND;
+        }
+        vertexArr[3 * i] = 0;
+        vertexArr[3 * i + 1] = (i - topPoints) * SECTION_LEN / 2;
+        vertexArr[3 * i + 2] = tireSpace;
+        vertexArr[3 * (i + 1)] = CHASSIS_WIDTH;
+        vertexArr[3 * (i + 1) + 1] = (i - topPoints) * SECTION_LEN / 2;
+        vertexArr[3 * (i + 1) + 2] = tireSpace;
+        normalArr[3* i] = n1.x;
+        normalArr[3 * i + 1] = n1.y;
+        normalArr[3 * i + 2] = n1.z;
+        normalArr[3 * (i + 1)] = n1.x;
+        normalArr[3 * (i + 1) + 1] = n1.y;
+        normalArr[3 * (i + 1) + 2] = n1.z;
+    }
+
+    for(var i = topPoints + 1; i < topPoints * 2 - 2; i=i+2){
+        // first triangle of quad
+        indexArr[currIndex] = i + 1;
+        currIndex++;
+        indexArr[currIndex] = i;
+        currIndex++;
+        indexArr[currIndex] = i - 1;
+        currIndex++
+        // second triangle of quad
+        indexArr[currIndex] = i;
+        currIndex++;
+        indexArr[currIndex] = i + 1;
+        currIndex++;
+        indexArr[currIndex] = i + 2;
+        currIndex++;
+    }
+
+    // sides
+    // first long side
+    for(var i = 0; i < topPoints - 2; i=i+2){
+        // first triangle of quad
+        indexArr[currIndex] = i + topPoints + 2;
+        currIndex++;
+        indexArr[currIndex] = i + topPoints;
+        currIndex++;
+        indexArr[currIndex] = i;
+        currIndex++
+        // second triangle of quad
+        indexArr[currIndex] = i + 2;
+        currIndex++;
+        indexArr[currIndex] = i + topPoints + 2;
+        currIndex++;
+        indexArr[currIndex] = i;
+        currIndex++;
+    }
+    // second long side
+    for(var i = 1; i < topPoints - 2; i=i+2){
+        // first triangle of quad
+        indexArr[currIndex] = i;
+        currIndex++;
+        indexArr[currIndex] = i + topPoints;
+        currIndex++;
+        indexArr[currIndex] = i + topPoints + 2;
+        currIndex++;
+        // second triangle of quad
+        indexArr[currIndex] = i;
+        currIndex++;
+        indexArr[currIndex] = i + topPoints + 2;
+        currIndex++;
+        indexArr[currIndex] = i + 2;
+        currIndex++;
+    }
+    // first short side
+    indexArr[currIndex] = 0;
+    currIndex++;
+    indexArr[currIndex] = topPoints;
+    currIndex++;
+    indexArr[currIndex] = topPoints + 1;
+    currIndex++;
+    indexArr[currIndex] = 0;
+    currIndex++;
+    indexArr[currIndex] = topPoints + 1;
+    currIndex++;
+    indexArr[currIndex] = 1;
+    currIndex++;
+    // second short side
+    indexArr[currIndex] = topPoints - 1;
+    currIndex++;
+    indexArr[currIndex] = topPoints * 2 - 2;
+    currIndex++;
+    indexArr[currIndex] = topPoints - 2;
+    currIndex++;
+    indexArr[currIndex] = topPoints - 1;
+    currIndex++;
+    indexArr[currIndex] = topPoints * 2 - 1;
+    currIndex++;
+    indexArr[currIndex] = topPoints * 2 - 2;
+
+    geometry.addAttribute('position', new THREE.BufferAttribute(vertexArr, 3));
+    geometry.addAttribute('normal', new THREE.BufferAttribute(normalArr, 3));
+    geometry.addAttribute('index', new THREE.BufferAttribute(indexArr, 1));
+
+    geometry.computeBoundingSphere();
+
+    var carMat = new THREE.MeshPhongMaterial({color: 0x0000ff});
+    var carMesh = new THREE.Mesh(geometry, carMat);
+
+    // create tires
+    var tireFR = new Wheel();
+    tireFR.position.set(0, SECTION_LEN * 5.5, OFF_GROUND);
+    tireFR.rotateZ(THREE.Math.degToRad(90));
+    tireFR.scale.set(0.25, 0.25, 0.25);
+    var tireFL = new Wheel();
+    tireFL.position.set(CHASSIS_WIDTH, SECTION_LEN * 5.5, OFF_GROUND);
+    tireFL.rotateZ(THREE.Math.degToRad(-90));
+    tireFL.scale.set(0.25, 0.25, 0.25);
+    var tireRR = new Wheel();
+    tireRR.position.set(0, SECTION_LEN * 34.5, OFF_GROUND);
+    tireRR.rotateZ(THREE.Math.degToRad(90));
+    tireRR.scale.set(0.25, 0.25, 0.25);
+    var tireRL = new Wheel();
+    tireRL.position.set(CHASSIS_WIDTH, SECTION_LEN * 34.5, OFF_GROUND);
+    tireRL.rotateZ(THREE.Math.degToRad(-90));
+    tireRL.scale.set(0.25, 0.25, 0.25);
+
+    // create headlights
+    var geoHeadlight = new THREE.SphereGeometry(0.25, 20, 20);
+    var headlightMat = new THREE.MeshBasicMaterial({color:0xffff00});
+    var headlightR = new THREE.Mesh (geoHeadlight, headlightMat);
+    headlightR.position.set(0.5, 0, OFF_GROUND + CHASSIS_HEIGHT - 0.5);
+    var headlightL = new THREE.Mesh (geoHeadlight, headlightMat);
+    headlightL.position.set(CHASSIS_WIDTH - 0.5, 0, OFF_GROUND + CHASSIS_HEIGHT - 0.5);
+
+    // create group of everything
+    var carGroup = new THREE.Group();
+
+    carGroup.sectionLen = SECTION_LEN;
+    carGroup.offGround = OFF_GROUND;
+    carGroup.chassisHeight = CHASSIS_HEIGHT;
+    carGroup.chassisWidth = CHASSIS_WIDTH;
+
+    // add everything to group
+    carGroup.add(carMesh);
+    carGroup.add(tireFR);
+    carGroup.add(tireFL);
+    carGroup.add(tireRR);
+    carGroup.add(tireRL);
+    carGroup.add(headlightR);
+    carGroup.add(headlightL);
+
+    carGroup.rotateTires = function(dis){
+        tireFR.rotateY(-dis / 1.25);
+        tireFL.rotateY(dis / 1.25);
+        tireRR.rotateY(-dis / 1.25);
+        tireRL.rotateY(dis / 1.25);
+    };
+
+    return carGroup;
+};
+
+/* Inherit from THREE.Object3D */
+Car.prototype = Object.create (THREE.Object3D.prototype);
+Car.prototype.constructor = Car;
