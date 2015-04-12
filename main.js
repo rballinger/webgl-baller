@@ -257,15 +257,36 @@ require([], function(){
 
 	var tree1 = new Tree();
 	scene.add(tree1);
-	tree1.position.set (0, 38, 85);
+	//tree1.position.set (0, 38, 85);
+
+    var tree1_cf = new THREE.Matrix4();
+    tree1_cf.makeTranslation(0, 38, 85);
+    tree1_cf.decompose(tran, quat, vscale);
+
+    tree1.position.copy(tran);
+    tree1.quaternion.copy(quat);
 
 	var tree2 = new Tree();
 	scene.add(tree2);
-	tree2.position.set (0, 38, 0);
+	//tree2.position.set (0, 38, 0);
+
+    var tree2_cf = new THREE.Matrix4();
+    tree2_cf.makeTranslation(0, 38, 0);
+    tree2_cf.decompose(tran, quat, vscale);
+
+    tree2.position.copy(tran);
+    tree2.quaternion.copy(quat);
 
 	var tree3 = new Tree();
 	scene.add(tree3);
-	tree3.position.set (0, 38, -85);
+	//tree3.position.set (0, 38, -85);
+
+    var tree3_cf = new THREE.Matrix4();
+    tree3_cf.makeTranslation(0, 38, -85);
+    tree3_cf.decompose(tran, quat, vscale);
+
+    tree3.position.copy(tran);
+    tree3.quaternion.copy(quat);
 
     onRenderFcts.push(function(delta, now){
 		if(run){

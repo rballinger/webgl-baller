@@ -3,7 +3,7 @@
  */
 Tree = function() {
 
-	var repeats = 1;
+	var repeats = 20;
 
 	var treeGroup = new THREE.Group();
 	var size = 2;
