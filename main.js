@@ -25,43 +25,22 @@ require([], function(){
     camera.lookAt(scene.position);
 
 	// determines if call-back will render new scene
-	var run = false;
-
-	// on render will allow translate fan once
-	var translateFan = true;
-	
-	// rotational speed of the swivel
-	var SWIVEL_SPEED = 0;
-	var d_swiv_speed = 0.5;
-
-	// rotational speed of fan blades
-	var FAN_SPEED = 94; /* in degrees per second */
-
-	// GLOBALS USED FOR CALL BACK
-	// big ufo
-	var old_X = 0.0;
-	var old_Z = 0.0;
-	var ufoSpeed = 50.0;
-	var ellipse_angle_change = 1.0;
-	var ellipse_angle = 0.0;
-	// small ufo one
-	var minUfoOneold_X = 0.0;
-	var minUfoOneold_Y = 0.0;
-	var minUfoOneufoSpeed = 50.0;
-	var minUfoOneellipse_angle_change = 1.0;
-	var minUfoOneellipse_angle = 0.0;
-	// small ufo two
-	var minUfoTwoold_Y = 0.0;
-	var minUfoTwoold_Z = 0.0;
-	var minUfoTwoufoSpeed = 50.0;
-	var minUfoTwoellipse_angle_change = 1.0;
-	var minUfoTwoellipse_angle = 0.0;
+	var run = true;
 
     // declare the rendering loop
     var onRenderFcts= [];
 
     // handle window resize events
     var winResize	= new THREEx.WindowResize(renderer, camera);
+
+	// hold the current time for car repositioning in render
+	var holdTime;
+
+	// position of car one
+	var carOneYSpeed = -3;
+
+	var tunnelRightPos = -125;
+	var tunnelLeftPos = 125;
 
     //////////////////////////////////////////////////////////////////////////////////
     //		lighting					//
@@ -85,9 +64,9 @@ require([], function(){
     var vscale = new THREE.Vector3();
 
     var car_cf = new THREE.Matrix4();
-    car_cf.makeTranslation(75, 0, 35);
+    car_cf.makeTranslation(60, 0, -165);
     car_cf.multiply(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(-90)));
-    car_cf.multiply(new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(-90)));
+    //car_cf.multiply(new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(-90)));
     car_cf.decompose(tran, quat, vscale);
 
     // add car
@@ -103,10 +82,10 @@ require([], function(){
     var lightL_cf;
     // add headlights
     var lightR = new THREE.SpotLight('white', 10, 100, Math.PI/6, 1);
-    lightR.target.position.set(-1000, 0, 0);
+    lightR.target.position.set(0, 0, 1000);
     lightR.target.updateMatrixWorld();
     var lightL = new THREE.SpotLight('white', 10, 100, Math.PI/6, 1);
-    lightL.target.position.set(-1000, 0, 0);
+    lightL.target.position.set(0, 0, 1000);
     lightL.target.updateMatrixWorld();
     scene.add(lightR);
     scene.add(lightL);
@@ -164,26 +143,26 @@ require([], function(){
 	var tunnelOne = new THREE.Mesh(tunnelPlane, tunnelMat);
 	tunnelOne.translateY(18);
 	tunnelOne.translateX(51);
-	tunnelOne.translateZ(-125);
+	tunnelOne.translateZ(tunnelRightPos);
     scene.add(tunnelOne);
 
 	var tunnelTwo = new THREE.Mesh(tunnelPlane, tunnelMat);
 	tunnelTwo.translateY(18);
 	tunnelTwo.translateX(-51);
-	tunnelTwo.translateZ(-125);
+	tunnelTwo.translateZ(tunnelRightPos);
     scene.add(tunnelTwo);
 
 	var tunnelThree = new THREE.Mesh(tunnelPlane, tunnelMat);
 	tunnelThree.translateY(18);
 	tunnelThree.translateX(51);
-	tunnelThree.translateZ(125);
+	tunnelThree.translateZ(tunnelLeftPos);
 	tunnelThree.rotateY(THREE.Math.degToRad(180));
     scene.add(tunnelThree);
 
 	var tunnelFour = new THREE.Mesh(tunnelPlane, tunnelMat);
 	tunnelFour.translateY(18);
 	tunnelFour.translateX(-51);
-	tunnelFour.translateZ(125);
+	tunnelFour.translateZ(tunnelLeftPos);
 	tunnelFour.rotateY(THREE.Math.degToRad(180));
     scene.add(tunnelFour);
 
@@ -217,48 +196,7 @@ require([], function(){
     streetLamp.target.updateMatrixWorld();
     scene.add( streetLamp );
     var helper = new THREE.SpotLightHelper(streetLamp);
-    scene.add(helper);
-
-	// UFO
-	var ufo = new UFO();
-	var minUfoOne = new UFO();
-	var minUfoTwo = new UFO();
-	minUfoOne.scale.set(0.3, 0.3, 0.3);
-	minUfoTwo.scale.set(0.3, 0.3, 0.3);
-
-	// ufo coordinate frames
-    var ufo_cf = new THREE.Matrix4();
-    var minUfoOne_cf = new THREE.Matrix4();
-    var minUfoTwo_cf = new THREE.Matrix4();
-	minUfoOne_cf.makeTranslation(-8, 0, 0);
-	minUfoTwo_cf.makeTranslation(-8, 0, 0);
-
-	// add mini ufos to large ufo group
-	ufo.add(minUfoOne);
-	ufo.add(minUfoTwo);
-	scene.add(ufo);
-
-	ufo_cf.makeTranslation(-46, 45, 0);
-
-	// position ufos
-    minUfoOne.position.set (-58, 0, 0);
-    minUfoTwo.position.set (0, 0, -46);
-    ufo.position.set (5, 5, 0);
-
-
-    // create cube map for environment mapping of current scene
-    var path = "textures/scene_envmap/"
-    var images = [path + "neg_x.jpg", path + "pos_x.jpg",
-        path + "pos_y.jpg", path + "neg_y.jpg",
-        path + "pos_z.jpg", path + "neg_z.jpg"];
-    var cubemap = THREE.ImageUtils.loadTextureCube( images );
-
-    // add sphere for environment mapping
-    var sphereGeo = new THREE.SphereGeometry(15, 30, 20);
-    var sphereMat = new THREE.MeshBasicMaterial({envMap:cubemap});
-    var sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
-    sphereMesh.position.set(-10, 25, 50);
-    scene.add(sphereMesh);*/
+    scene.add(helper);*/
 
 	var tree1 = new Tree();
 	scene.add(tree1);
@@ -274,86 +212,27 @@ require([], function(){
 
     onRenderFcts.push(function(delta, now){
 		if(run){
-		    // old code
-		    //mesh.rotateX(0.5 * delta);
-		    //mesh.rotateY(2.0 * delta);
-		    //coneMesh.rotateZ(0.5 * delta);
+			/* TODO */
 
-			/// START UFO MOTION ///
-		    var ufo_tran = new THREE.Vector3();
-		    var ufo_quat = new THREE.Quaternion();
-		    var ufo_rot = new THREE.Quaternion();
-		    var ufo_vscale = new THREE.Vector3();
-			var majAxis = 140.0;
-			var minAxis = 100.0;
+		    car_cf.multiply(new THREE.Matrix4().makeTranslation(0, carOneYSpeed, 0));
+		    car_cf.decompose(tran, quat, vscale);
+		    car.position.copy(tran);
+    		car.quaternion.copy(quat);
 
-			var new_X = minAxis*Math.cos(ellipse_angle);
-			var new_Z = majAxis*Math.sin(ellipse_angle);
+			// get the coordinates of the car
+			var position = new THREE.Vector3();
+			position.getPositionFromMatrix( car.matrixWorld );
+				
+			// move car to other end of tunnel to restart its path
+			if(position.z > tunnelLeftPos + 55){
+				//holdTime = now;
 
-		    if(ellipse_angle == 0.0){
-		    	new_X = new_Z = 0.0;
-		    }
-
-       		ellipse_angle += ellipse_angle_change*delta;
-
-		    ufo_cf.multiply(new THREE.Matrix4().makeTranslation(new_X - old_X, 0.0, new_Z - old_Z));
-		    ufo_cf.decompose (ufo_tran, ufo_quat, ufo_vscale);
-		    ufo.position.copy(ufo_tran);
-		    ufo.quaternion.copy(ufo_quat);
-
-			old_X = new_X;
-			old_Z = new_Z;
-
-			var minUfoOne_tran = new THREE.Vector3();
-		    var minUfoOne_quat = new THREE.Quaternion();
-		    var minUfoOne_rot = new THREE.Quaternion();
-		    var minUfoOne_vscale = new THREE.Vector3();
-			var minUfoOnemajAxis = 50.0;
-			var minUfoOneminAxis = 10.0;
-
-			var minUfoOnenew_X = minUfoOnemajAxis*Math.cos(minUfoOneellipse_angle);
-			var minUfoOnenew_Y = minUfoOneminAxis*Math.sin(minUfoOneellipse_angle);
-
-		    if(minUfoOneellipse_angle == 0.0){
-		    	minUfoOnenew_X = minUfoOnenew_Y = 0.0;
-		    }
-
-       		minUfoOneellipse_angle += minUfoOneellipse_angle_change*delta;
-
-		    minUfoOne_cf.multiply(new THREE.Matrix4().makeTranslation(minUfoOnenew_X - minUfoOneold_X, minUfoOnenew_Y - minUfoOneold_Y, 0.0));
-		    minUfoOne_cf.decompose (minUfoOne_tran, minUfoOne_quat, minUfoOne_vscale);
-		    minUfoOne.position.copy(minUfoOne_tran);
-		    minUfoOne.quaternion.copy(minUfoOne_quat);
-
-			minUfoOneold_X = minUfoOnenew_X;
-			minUfoOneold_Y = minUfoOnenew_Y;
-
-			var minUfoTwo_tran = new THREE.Vector3();
-		    var minUfoTwo_quat = new THREE.Quaternion();
-		    var minUfoTwo_rot = new THREE.Quaternion();
-		    var minUfoTwo_vscale = new THREE.Vector3();
-			var minUfoTwomajAxis = 10.0;
-			var minUfoTwominAxis = 50.0;
-
-			var minUfoTwonew_Y = minUfoTwomajAxis*Math.cos(minUfoTwoellipse_angle);
-			var minUfoTwonew_Z = minUfoTwominAxis*Math.sin(minUfoTwoellipse_angle);
-
-		    if(minUfoTwoellipse_angle == 0.0){
-		    	minUfoTwonew_Y = minUfoTwonew_Z = 0.0;
-		    }
-
-       		minUfoTwoellipse_angle += minUfoTwoellipse_angle_change*delta;
-
-		    minUfoTwo_cf.multiply(new THREE.Matrix4().makeTranslation(0.0, minUfoTwonew_Y - minUfoTwoold_Y, minUfoTwonew_Z - minUfoTwoold_Z));
-		    minUfoTwo_cf.decompose (minUfoTwo_tran, minUfoTwo_quat, minUfoTwo_vscale);
-		    minUfoTwo.position.copy(minUfoTwo_tran);
-		    minUfoTwo.quaternion.copy(minUfoTwo_quat);
-
-			minUfoTwoold_Y = minUfoTwonew_Y;
-			minUfoTwoold_Z = minUfoTwonew_Z;
-
-			/// END UFO MOTION ///
-
+				//if(holdTime - now > 1000000){
+					car_cf.makeTranslation(60, 0, -165);
+					car_cf.multiply(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(-90)));
+					car_cf.decompose(tran, quat, vscale);
+				//}
+			}
 		}
 
     });
@@ -378,36 +257,9 @@ require([], function(){
             case 84:    // 't' to select car
                 selected_obj = car;
                 break;
-            case 85:    // 'u' to select ufo
-                selected_obj = ufo;
-                break;
-            case 70:    // 'f' to select minUfo1
-                selected_obj = minUfoOne;
-                break;
-            case 79:    // 'o' to select minUfo2
-                selected_obj = minUfoTwo;
-                break;
             case 67:    // 'c' to select camera
                 selected_obj = camera;
                 break;
-			// swivel rotation speed
-            case 90:	// 'z' to speed up weathervane swivel
-            	if(d_swiv_speed <= 0){
-            		SWIVEL_SPEED += 1;
-            	}else{
-            		SWIVEL_SPEED -= 1;
-            	}
-            	break;
-			// fan rotation speed
-            case 66:	// 'b' to speed up weathervane fan
-            	FAN_SPEED++;
-				break;
-            case 71:	// 'g' to slow down weathervane fan
-            	FAN_SPEED--;
-				if(FAN_SPEED <= 0){
-					FAN_SPEED = 0;
-				}
-				break;
             /**** hold shift to rotate objects *****/
             case 16:    // hold shift to rotate objects
                 shift = true;

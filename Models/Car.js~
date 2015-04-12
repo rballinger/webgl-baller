@@ -207,6 +207,8 @@ var Car = function () {
 	var rand = Math.random() * (colors.length - 1 - 0) + 0;
 	var color = colors[Math.floor(rand)];
 
+	alert(Math.floor(rand));
+
     var carMat = new THREE.MeshPhongMaterial({color: color});
     var carMesh = new THREE.Mesh(geometry, carMat);
 
