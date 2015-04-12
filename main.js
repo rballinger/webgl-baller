@@ -71,7 +71,7 @@ require([], function(){
     ambientLight.position.set(0, 20, 0);
     scene.add( ambientLight);
     var backLight	= new THREE.DirectionalLight('white', 2.0);
-    backLight.position.set(100, 100, 100);
+    backLight.position.set(100, 50, -150);
     scene.add( backLight );
     var helper2 = new THREE.DirectionalLightHelper(backLight, 20);
     scene.add(helper2);
@@ -95,6 +95,7 @@ require([], function(){
     // set car to car_cf
     car.position.copy(tran);
     car.quaternion.copy(quat);
+	car.scale.set(3.5,3.5,3.5);
     scene.add(car);
 
     // headlight coord frames
@@ -110,38 +111,102 @@ require([], function(){
     scene.add(lightR);
     scene.add(lightL);
 
-    // roads and median
-    var MAX_LANES = 4;
-    var ROAD_WIDTH = 14;
-    var MEDIAN_WIDTH = 4;
-    var roadAry = [];
-    var medianAry = [];
-    for(var i = 0; i < MAX_LANES; i++){
-        var roadTex = THREE.ImageUtils.loadTexture("textures/road.png");
-        roadTex.repeat.set(i + 1, 30);
-        roadTex.wrapS = THREE.RepeatWrapping;
-        roadTex.wrapT = THREE.RepeatWrapping;
-        var road = new THREE.PlaneBufferGeometry(ROAD_WIDTH * (i + 1), 150, 1, 5);
-        var roadMat = new THREE.MeshPhongMaterial({map:roadTex});
-        roadAry[i] = new THREE.Mesh(road, roadMat);
-        roadAry[i].rotateX(THREE.Math.degToRad(-90));
-        roadAry[i].translateX((MEDIAN_WIDTH / 2) * (2 * i + 1) + (ROAD_WIDTH / 2) * Math.pow((i + 1), 2));
-        scene.add(roadAry[i]);
-        // add median
-        var median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH, 150, 1, 5);
-        var medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
-        medianAry[i] = new THREE.Mesh(median, medianMat);
-        medianAry[i].rotateX(THREE.Math.degToRad(-90));
-        medianAry[i].translateX((MEDIAN_WIDTH / 2) * (2 * i) + (ROAD_WIDTH / 2) * (Math.pow(i, 2) + i));
-        scene.add(medianAry[i]);
-    }
+    // road ways
+    var roadOnePlane = new THREE.PlaneBufferGeometry(260, 50, 5, 5);
+    var asphaltTex = THREE.ImageUtils.loadTexture("textures/road.jpg");
+    asphaltTex.repeat.set(1, 1);
+    asphaltTex.wrapS = THREE.MirroredRepeatWrapping;
+    asphaltTex.wrapT = THREE.RepeatWrapping;
+	var roadMat = new THREE.MeshPhongMaterial({color:0x696969, map:asphaltTex});
+	var roadOne = new THREE.Mesh(roadOnePlane, roadMat);
+    roadOne.rotateX(THREE.Math.degToRad(-90));
+	roadOne.rotateZ(THREE.Math.degToRad(-90));
+	roadOne.translateY(-50);
+    scene.add(roadOne);
 
+	var roadTwo = new THREE.Mesh(roadOnePlane, roadMat);
+    roadTwo.rotateX(THREE.Math.degToRad(-90));
+	roadTwo.rotateZ(THREE.Math.degToRad(-90));
+	roadTwo.translateY(50);
+    scene.add(roadTwo);
 
-    var axisH = new THREE.AxisHelper(30);
-    scene.add(axisH);
+	// Grass
+    var grassPlane = new THREE.PlaneBufferGeometry(260, 50, 5, 5);
+    var grassTex = THREE.ImageUtils.loadTexture("textures/grass.jpg");
+    grassTex.repeat.set(1, 1);
+    grassTex.wrapS = THREE.MirroredRepeatWrapping;
+    grassTex.wrapT = THREE.RepeatWrapping;
+	var grassMat = new THREE.MeshPhongMaterial({color:0x696969, map:grassTex});
+	var grassMid = new THREE.Mesh(grassPlane, grassMat);
+    grassMid.rotateX(THREE.Math.degToRad(-90));
+	grassMid.rotateZ(THREE.Math.degToRad(-90));
+    scene.add(grassMid);
+
+	var grassBegin = new THREE.Mesh(grassPlane, grassMat);
+    grassBegin.rotateX(THREE.Math.degToRad(-90));
+	grassBegin.rotateZ(THREE.Math.degToRad(-90));
+	grassBegin.translateY(100);
+    scene.add(grassBegin);
+
+	var grassEnd = new THREE.Mesh(grassPlane, grassMat);
+    grassEnd.rotateX(THREE.Math.degToRad(-90));
+	grassEnd.rotateZ(THREE.Math.degToRad(-90));
+	grassEnd.translateY(-100);
+    scene.add(grassEnd);
+
+	// Tunnel
+    var tunnelPlane = new THREE.PlaneBufferGeometry(102, 60, 5, 5);
+    var tunnelTex = THREE.ImageUtils.loadTexture("textures/tunnel.jpg");
+    tunnelTex.repeat.set(1, 1);
+    tunnelTex.wrapS = THREE.MirroredRepeatWrapping;
+    tunnelTex.wrapT = THREE.RepeatWrapping;
+	var tunnelMat = new THREE.MeshPhongMaterial({color:0x696969, map:tunnelTex});
+	var tunnelOne = new THREE.Mesh(tunnelPlane, tunnelMat);
+	tunnelOne.translateY(18);
+	tunnelOne.translateX(51);
+	tunnelOne.translateZ(-125);
+    scene.add(tunnelOne);
+
+	var tunnelTwo = new THREE.Mesh(tunnelPlane, tunnelMat);
+	tunnelTwo.translateY(18);
+	tunnelTwo.translateX(-51);
+	tunnelTwo.translateZ(-125);
+    scene.add(tunnelTwo);
+
+	var tunnelThree = new THREE.Mesh(tunnelPlane, tunnelMat);
+	tunnelThree.translateY(18);
+	tunnelThree.translateX(51);
+	tunnelThree.translateZ(125);
+	tunnelThree.rotateY(THREE.Math.degToRad(180));
+    scene.add(tunnelThree);
+
+	var tunnelFour = new THREE.Mesh(tunnelPlane, tunnelMat);
+	tunnelFour.translateY(18);
+	tunnelFour.translateX(-51);
+	tunnelFour.translateZ(125);
+	tunnelFour.rotateY(THREE.Math.degToRad(180));
+    scene.add(tunnelFour);
+
+	// rock wall
+    var wallPlane = new THREE.PlaneBufferGeometry(248, 95, 5, 5);
+    var wallTex = THREE.ImageUtils.loadTexture("textures/rockWall.jpg");
+    wallTex.repeat.set(1, 1);
+    wallTex.wrapS = THREE.MirroredRepeatWrapping;
+    wallTex.wrapT = THREE.RepeatWrapping;
+	var wallMat = new THREE.MeshPhongMaterial({color:0x696969, map:wallTex});
+	var wallOne = new THREE.Mesh(wallPlane, wallMat);
+	wallOne.translateY(48);
+	wallOne.translateZ(-125.7);
+    scene.add(wallOne);
+
+	var wallTwo = new THREE.Mesh(wallPlane, wallMat);
+	wallTwo.translateY(48);
+	wallTwo.translateZ(125.7);
+	wallTwo.rotateY(THREE.Math.degToRad(180));
+    scene.add(wallTwo);
 
 	// street light with curb
-	var streetLight = new StreetLight();
+	/*var streetLight = new StreetLight();
     streetLight.rotateY(THREE.Math.degToRad(90));
     streetLight.position.set(0, 8, 10);
 	scene.add(streetLight);
@@ -178,35 +243,7 @@ require([], function(){
 	// position ufos
     minUfoOne.position.set (-58, 0, 0);
     minUfoTwo.position.set (0, 0, -46);
-    ufo.position.set (-46, 45, 0);
-
-	// Weathervane base
-	var vaneBase = new WeatherVaneBase();
-	scene.add(vaneBase);
-
-	// Weathervane swivel
-	var vaneSwivel = new VaneSwivel();
-	vaneBase.add(vaneSwivel);
-
-	vaneBase.translateX (-88);
-
-	// Weathervane swivel frames
-    var swivel_cf = new THREE.Matrix4();
-	swivel_cf.makeTranslation(-10.5, 42.3, 54.5);
-
-	// Fan for weathervane
-	var fan = new Fan();
-	fan.translateX(12);
-	fan.translateZ(-24);
-	fan.rotateY(Math.PI/2);
-
-	// Weathervane swivel frames
-    var fan_cf = new THREE.Matrix4();
-
-    fan_cf.makeRotationY(THREE.Math.degToRad(90));
-
-	vaneSwivel.add(fan);
-	//fan_cf.makeTranslation(12, 0, 1.5);
+    ufo.position.set (5, 5, 0);
 
 
     // create cube map for environment mapping of current scene
@@ -221,7 +258,19 @@ require([], function(){
     var sphereMat = new THREE.MeshBasicMaterial({envMap:cubemap});
     var sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
     sphereMesh.position.set(-10, 25, 50);
-    scene.add(sphereMesh);
+    scene.add(sphereMesh);*/
+
+	var tree1 = new Tree();
+	scene.add(tree1);
+	tree1.position.set (0, 38, 85);
+
+	var tree2 = new Tree();
+	scene.add(tree2);
+	tree2.position.set (0, 38, 0);
+
+	var tree3 = new Tree();
+	scene.add(tree3);
+	tree3.position.set (0, 38, -85);
 
     onRenderFcts.push(function(delta, now){
 		if(run){
@@ -305,51 +354,6 @@ require([], function(){
 
 			/// END UFO MOTION ///
 
-
-			/// START FAN MOTION ///
-			/// swivel
-			
-		    var swivel_tran = new THREE.Vector3();
-		    var swivel_quat = new THREE.Quaternion();
-		    var swivel_rot = new THREE.Quaternion();
-		    var swivel_vscale = new THREE.Vector3();
-
-		    if(SWIVEL_SPEED >= 4){
-		    	d_swiv_speed = -1.5;
-		    }else if( SWIVEL_SPEED <= -4){
-		    	d_swiv_speed = 1.5;
-		    }
-
-		    SWIVEL_SPEED += d_swiv_speed*delta;
-
-		    var swivel_angle = SWIVEL_SPEED;
-
-		    swivel_cf.multiply(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(swivel_angle)));
-		    swivel_cf.decompose(swivel_tran, swivel_quat, swivel_vscale);
-		    vaneSwivel.position.copy(swivel_tran);
-		    vaneSwivel.quaternion.copy(swivel_quat);
-
-			// fan
-
-			var fan_tran = new THREE.Vector3();
-			var fan_quat = new THREE.Quaternion();
-			var fan_rot = new THREE.Quaternion();
-			var fan_vscale = new THREE.Vector3();
-			fan_angle = FAN_SPEED * delta;
-
-			fan_cf.multiply(new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(fan_angle)));
-		    fan_cf.decompose(fan_tran, fan_quat, fan_vscale);
-		    fan.position.copy(fan_tran);
-		    fan.quaternion.copy(fan_quat);
-
-			// do only once (Can't do out side of render?!?!?!?!?!?!?!?!?!)
-			if(translateFan){
-				fan_cf.multiply(new THREE.Matrix4().makeTranslation(0,0,12));
-				fan_cf.decompose(fan_tran, fan_quat, fan_vscale);
-				fan.position.copy(fan_tran);
-				fan.quaternion.copy(fan_quat);
-				translateFan = !translateFan;
-			}
 		}
 
     });
