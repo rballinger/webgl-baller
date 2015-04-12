@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<head>
+    <title>Project 3 - WebGL</title>
+    <script src='bower_components/threejs/build/three.js'></script>
+    <script src="vendor/require.js/require.js"></script>
+    <script src="vendor/three.js/examples/js/Detector.js"></script>
+    <script src="vendor/threex.windowresize.js"></script>
+    <script src="models/Car.js"></script>
+    <script src="models/Wheel.js"></script>
+    <script src="models/Ground.js"></script>
+    <script src="models/StreetLight.js"></script>
+    <script src="models/UFO.js"></script>
+    <script src="models/WeatherVaneBase.js"></script>
+    <script src="models/VaneSwivel.js"></script>
+   	<script src="models/Blades.js"></script>
+   	<script src="models/Fan.js"></script>
+    <style>
+        #cs-legend{
+            position:absolute;
+            width:100px;
+            height:100px;
+            z-index:999;
+        }
+        .x{
+            color:blue;
+        }
+        .y{
+            color:red;
+        }
+        .z{
+            color:green;
+        }
+
+    </style>
+</head>
+<body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'>
+    <img id="cs-legend" src="coord%20system%20legend.png" />
+    <div style="margin-left:105px">
+
+    </div>
+    <script src="main.js"></script>
+<div id="graphicsbox"></div>
+</body>
