@@ -112,9 +112,8 @@ require([], function(){
     scene.add(lightR);
     scene.add(lightL);
 
-<<<<<<< HEAD
     var totalArea1Width = 150;
-
+/*
     // roads and median
     var MAX_LANES = 3;
     var ROAD_WIDTH = 14;
@@ -168,7 +167,7 @@ require([], function(){
 
     var origin = new THREE.AxisHelper(30);
     scene.add(origin);
-=======
+*/
     // road ways
     var roadOnePlane = new THREE.PlaneBufferGeometry(260, 50, 5, 5);
     var asphaltTex = THREE.ImageUtils.loadTexture("textures/road.jpg");
@@ -262,7 +261,6 @@ require([], function(){
 	wallTwo.translateZ(125.7);
 	wallTwo.rotateY(THREE.Math.degToRad(180));
     scene.add(wallTwo);
->>>>>>> origin/master
 
 	// street light with curb
 	/*var streetLight = new StreetLight();
