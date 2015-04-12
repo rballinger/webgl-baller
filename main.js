@@ -548,13 +548,13 @@ require([], function(){
         car.quaternion.copy(quat);
 
         lightR_cf = new THREE.Matrix4().copy(car_cf);
-        lightR_cf.multiply(new THREE.Matrix4().makeTranslation(0.5, 0, car.offGround + car.chassisHeight - 0.5));
+        lightR_cf.multiply(new THREE.Matrix4().makeTranslation(1.7, 0, (car.offGround + car.chassisHeight - 0.5) * 3.5));
         lightR_cf.decompose(tran, quat, vscale);
         lightR.position.copy(tran);
         lightR.quaternion.copy(quat);
 
         lightL_cf = new THREE.Matrix4().copy(lightR_cf);
-        lightL_cf.multiply(new THREE.Matrix4().makeTranslation(car.chassisWidth - 1, 0, 0))
+        lightL_cf.multiply(new THREE.Matrix4().makeTranslation((car.chassisWidth - 1)*3.5, 0, 0))
         lightL_cf.decompose(tran, quat, vscale);
         lightL.position.copy(tran);
         lightL.quaternion.copy(quat);
