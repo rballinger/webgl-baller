@@ -21,8 +21,9 @@ require([], function(){
     // setup a scene and camera
     var scene	= new THREE.Scene();
     var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
-    camera.position.set(225, 100, 120);
-    camera.lookAt(scene.position);
+    camera.position.set(-75, 40, 0);
+    //position.set(100, 100, 100);
+    camera.lookAt(new THREE.Vector3(100, 0, 0));
 
 	// determines if call-back will render new scene
 	var run = true;
@@ -90,6 +91,62 @@ require([], function(){
     scene.add(lightR);
     scene.add(lightL);
 
+    var totalArea1Width = 150;
+/*
+    // roads and median
+    var MAX_LANES = 3;
+    var ROAD_WIDTH = 14;
+    var MEDIAN_WIDTH = 4;
+    var roadAry = [];
+    var medianAry = [];
+    for(var i = 0; i < MAX_LANES; i++){
+        var roadTex = THREE.ImageUtils.loadTexture("textures/road.png");
+        roadTex.repeat.set(i + 1, 30);
+        roadTex.wrapS = THREE.RepeatWrapping;
+        roadTex.wrapT = THREE.RepeatWrapping;
+        var road = new THREE.PlaneBufferGeometry(ROAD_WIDTH * (i + 1), totalArea1Width, 1, 5);
+        var roadMat = new THREE.MeshPhongMaterial({map:roadTex});
+        roadAry[i] = new THREE.Mesh(road, roadMat);
+        roadAry[i].rotateX(THREE.Math.degToRad(-90));
+        roadAry[i].translateX((MEDIAN_WIDTH / 2) * (2 * i + 1) + (ROAD_WIDTH / 2) * Math.pow((i + 1), 2));
+        scene.add(roadAry[i]);
+        // add median
+        var median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH, 150, 1, 5);
+        var medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
+        medianAry[i] = new THREE.Mesh(median, medianMat);
+        medianAry[i].rotateX(THREE.Math.degToRad(-90));
+        medianAry[i].translateX((MEDIAN_WIDTH / 2) * (2 * i) + (ROAD_WIDTH / 2) * (Math.pow(i, 2) + i));
+        scene.add(medianAry[i]);
+    }
+
+    var totalArea1Length = MAX_LANES * MEDIAN_WIDTH + 6 * ROAD_WIDTH;
+    console.log(totalArea1Length);
+
+    var WALL_HEIGHT = 15;
+    var wallLeftTex = THREE.ImageUtils.loadTexture("textures/tunnelLeft.png");
+    wallLeftTex.repeat.set(1, 1);
+    wallLeftTex.wrapS = THREE.RepeatWrapping;
+    wallLeftTex.wrapT = THREE.RepeatWrapping;
+    var wallLeftMat = new THREE.MeshPhongMaterial({map:wallLeftTex});
+    var wallLeft = new THREE.PlaneBufferGeometry(totalArea1Length, WALL_HEIGHT, 1, 1);
+    var wallLeftMesh = new THREE.Mesh(wallLeft, wallLeftMat);
+    wallLeftMesh.position.set(totalArea1Length / 2 - (MEDIAN_WIDTH / 2), WALL_HEIGHT / 2, -totalArea1Width / 2);
+    var wallRightTex = THREE.ImageUtils.loadTexture("textures/tunnelRight.png");
+    wallRightTex.repeat.set(1, 1);
+    wallRightTex.wrapS = THREE.RepeatWrapping;
+    wallRightTex.wrapT = THREE.RepeatWrapping;
+    var wallRightMat = new THREE.MeshPhongMaterial({map:wallRightTex});
+    var wallRight = new THREE.PlaneBufferGeometry(totalArea1Length, WALL_HEIGHT, 1, 1);
+    var wallRightMesh = new THREE.Mesh(wallRight, wallRightMat);
+    wallRightMesh.rotateY(THREE.Math.degToRad(180));
+    wallRightMesh.position.set(totalArea1Length / 2 - (MEDIAN_WIDTH / 2), WALL_HEIGHT / 2, totalArea1Width / 2);
+    scene.add(wallLeftMesh);
+    scene.add(wallRightMesh);
+
+
+    var origin = new THREE.AxisHelper(30);
+    scene.add(origin);
+*/
     // road ways
     var roadOnePlane = new THREE.PlaneBufferGeometry(260, 50, 5, 5);
     var asphaltTex = THREE.ImageUtils.loadTexture("textures/road.jpg");
@@ -343,13 +400,13 @@ require([], function(){
         car.quaternion.copy(quat);
 
         lightR_cf = new THREE.Matrix4().copy(car_cf);
-        lightR_cf.multiply(new THREE.Matrix4().makeTranslation(0.5, 0, car.offGround + car.chassisHeight - 0.5));
+        lightR_cf.multiply(new THREE.Matrix4().makeTranslation(1.7, 0, (car.offGround + car.chassisHeight - 0.5) * 3.5));
         lightR_cf.decompose(tran, quat, vscale);
         lightR.position.copy(tran);
         lightR.quaternion.copy(quat);
 
         lightL_cf = new THREE.Matrix4().copy(lightR_cf);
-        lightL_cf.multiply(new THREE.Matrix4().makeTranslation(car.chassisWidth - 1, 0, 0))
+        lightL_cf.multiply(new THREE.Matrix4().makeTranslation((car.chassisWidth - 1)*3.5, 0, 0))
         lightL_cf.decompose(tran, quat, vscale);
         lightL.position.copy(tran);
         lightL.quaternion.copy(quat);
