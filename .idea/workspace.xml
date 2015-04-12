@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="530fcfb8-0da4-44a8-8d1a-85590514d5e1" name="Default" comment="">
-      <change type="MOVED" beforePath="C:\Users\Ryan\Dropbox\GVSU\5th Year\Winter 2015\CIS 367\Projects\webgl-baller\.idea\WebGLProject3.iml" afterPath="$PROJECT_DIR$/.idea/webgl-baller.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/.name" afterPath="$PROJECT_DIR$/.idea/.name" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/index.html" afterPath="$PROJECT_DIR$/index.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.js" afterPath="$PROJECT_DIR$/main.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="WebGLProject3.iws" />
@@ -54,8 +50,8 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.44493392" vertical-offset="1923" max-vertical-offset="9095">
-              <caret line="127" column="65" selection-start-line="127" selection-start-column="65" selection-end-line="127" selection-end-column="65" />
+            <state vertical-scroll-proportion="0.29955947" vertical-offset="1819" max-vertical-offset="9044">
+              <caret line="117" column="23" selection-start-line="117" selection-start-column="23" selection-end-line="117" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -656,8 +652,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.44493392" vertical-offset="1923" max-vertical-offset="9095">
-          <caret line="127" column="65" selection-start-line="127" selection-start-column="65" selection-end-line="127" selection-end-column="65" />
+        <state vertical-scroll-proportion="0.29955947" vertical-offset="1819" max-vertical-offset="9044">
+          <caret line="117" column="23" selection-start-line="117" selection-start-column="23" selection-end-line="117" selection-end-column="23" />
           <folding />
         </state>
       </provider>

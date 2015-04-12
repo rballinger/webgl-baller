@@ -111,21 +111,18 @@ require([], function(){
     scene.add(lightL);
 
     // roads and median
-    var MAX_LANES = 5;
-    var ROAD_WIDTH = 7;
+    var MAX_LANES = 4;
+    var ROAD_WIDTH = 14;
     var MEDIAN_WIDTH = 4;
     var roadAry = [];
     var medianAry = [];
-    var previous = 0;
     for(var i = 0; i < MAX_LANES; i++){
-        previous += i;
+        var roadTex = THREE.ImageUtils.loadTexture("textures/road.png");
+        roadTex.repeat.set(i + 1, 30);
+        roadTex.wrapS = THREE.RepeatWrapping;
+        roadTex.wrapT = THREE.RepeatWrapping;
         var road = new THREE.PlaneBufferGeometry(ROAD_WIDTH * (i + 1), 150, 1, 5);
-        //var groundPlane = new Ground();
-        //var asphaltTex = THREE.ImageUtils.loadTexture("textures/asphalt.jpg");
-        //asphaltTex.repeat.set(20, 20);
-        //asphaltTex.wrapS = THREE.MirroredRepeatWrapping;
-        //asphaltTex.wrapT = THREE.RepeatWrapping;
-        var roadMat = new THREE.MeshPhongMaterial({color:0xFFFFFF});//, map:asphaltTex});
+        var roadMat = new THREE.MeshPhongMaterial({map:roadTex});
         roadAry[i] = new THREE.Mesh(road, roadMat);
         roadAry[i].rotateX(THREE.Math.degToRad(-90));
         roadAry[i].translateX((MEDIAN_WIDTH / 2) * (2 * i + 1) + (ROAD_WIDTH / 2) * Math.pow((i + 1), 2));
