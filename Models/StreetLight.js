@@ -31,7 +31,7 @@ StreetLight = function(len) {
     var post = new THREE.Mesh (postGeo, frameMat);
 
     // base
-    var baseGeo = new THREE.CylinderGeometry(2.25, 2.25, 6, 24);
+    var baseGeo = new THREE.CylinderGeometry(2.25, 2.25, 3, 24);
     var base = new THREE.Mesh (baseGeo, concrete1Mat);
 
     // elbow
@@ -56,7 +56,7 @@ StreetLight = function(len) {
     elbow.position.set (0, 15, 8);
 
     // add primitive shapes to group to form street light structure
-    group.add (curb);
+    //group.add (curb);
     group.add (shade);
     group.add (base);
     group.add (post);

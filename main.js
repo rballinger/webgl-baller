@@ -21,8 +21,9 @@ require([], function(){
     // setup a scene and camera
     var scene	= new THREE.Scene();
     var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
-    camera.position.set(225, 100, 120);
-    camera.lookAt(scene.position);
+    camera.position.set(-75, 40, 0);
+    //position.set(100, 100, 100);
+    camera.lookAt(new THREE.Vector3(100, 0, 0));
 
 	// determines if call-back will render new scene
 	var run = false;
@@ -110,8 +111,10 @@ require([], function(){
     scene.add(lightR);
     scene.add(lightL);
 
+    var totalArea1Width = 150;
+
     // roads and median
-    var MAX_LANES = 4;
+    var MAX_LANES = 3;
     var ROAD_WIDTH = 14;
     var MEDIAN_WIDTH = 4;
     var roadAry = [];
@@ -121,7 +124,7 @@ require([], function(){
         roadTex.repeat.set(i + 1, 30);
         roadTex.wrapS = THREE.RepeatWrapping;
         roadTex.wrapT = THREE.RepeatWrapping;
-        var road = new THREE.PlaneBufferGeometry(ROAD_WIDTH * (i + 1), 150, 1, 5);
+        var road = new THREE.PlaneBufferGeometry(ROAD_WIDTH * (i + 1), totalArea1Width, 1, 5);
         var roadMat = new THREE.MeshPhongMaterial({map:roadTex});
         roadAry[i] = new THREE.Mesh(road, roadMat);
         roadAry[i].rotateX(THREE.Math.degToRad(-90));
@@ -136,9 +139,33 @@ require([], function(){
         scene.add(medianAry[i]);
     }
 
+    var totalArea1Length = MAX_LANES * MEDIAN_WIDTH + 6 * ROAD_WIDTH;
+    console.log(totalArea1Length);
 
-    var axisH = new THREE.AxisHelper(30);
-    scene.add(axisH);
+    var WALL_HEIGHT = 15;
+    var wallLeftTex = THREE.ImageUtils.loadTexture("textures/tunnelLeft.png");
+    wallLeftTex.repeat.set(1, 1);
+    wallLeftTex.wrapS = THREE.RepeatWrapping;
+    wallLeftTex.wrapT = THREE.RepeatWrapping;
+    var wallLeftMat = new THREE.MeshPhongMaterial({map:wallLeftTex});
+    var wallLeft = new THREE.PlaneBufferGeometry(totalArea1Length, WALL_HEIGHT, 1, 1);
+    var wallLeftMesh = new THREE.Mesh(wallLeft, wallLeftMat);
+    wallLeftMesh.position.set(totalArea1Length / 2 - (MEDIAN_WIDTH / 2), WALL_HEIGHT / 2, -totalArea1Width / 2);
+    var wallRightTex = THREE.ImageUtils.loadTexture("textures/tunnelRight.png");
+    wallRightTex.repeat.set(1, 1);
+    wallRightTex.wrapS = THREE.RepeatWrapping;
+    wallRightTex.wrapT = THREE.RepeatWrapping;
+    var wallRightMat = new THREE.MeshPhongMaterial({map:wallRightTex});
+    var wallRight = new THREE.PlaneBufferGeometry(totalArea1Length, WALL_HEIGHT, 1, 1);
+    var wallRightMesh = new THREE.Mesh(wallRight, wallRightMat);
+    wallRightMesh.rotateY(THREE.Math.degToRad(180));
+    wallRightMesh.position.set(totalArea1Length / 2 - (MEDIAN_WIDTH / 2), WALL_HEIGHT / 2, totalArea1Width / 2);
+    scene.add(wallLeftMesh);
+    scene.add(wallRightMesh);
+
+
+    var origin = new THREE.AxisHelper(30);
+    scene.add(origin);
 
 	// street light with curb
 	var streetLight = new StreetLight();
