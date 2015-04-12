@@ -71,7 +71,7 @@ require([], function(){
     ambientLight.position.set(0, 20, 0);
     scene.add( ambientLight);
     var backLight	= new THREE.DirectionalLight('white', 2.0);
-    backLight.position.set(100, 50, -150);
+    backLight.position.set(100, 100, 100);
     scene.add( backLight );
     var helper2 = new THREE.DirectionalLightHelper(backLight, 20);
     scene.add(helper2);
@@ -110,17 +110,38 @@ require([], function(){
     scene.add(lightR);
     scene.add(lightL);
 
-    // ground
-    var groundPlane = new THREE.PlaneBufferGeometry(250, 250, 5, 5);
-    //var groundPlane = new Ground();
-    var asphaltTex = THREE.ImageUtils.loadTexture("textures/asphalt.jpg");
-    asphaltTex.repeat.set(20, 20);
-    asphaltTex.wrapS = THREE.MirroredRepeatWrapping;
-    asphaltTex.wrapT = THREE.RepeatWrapping;
-	var groundMat = new THREE.MeshPhongMaterial({color:0x696969, map:asphaltTex});
-	var ground = new THREE.Mesh(groundPlane, groundMat);
-    ground.rotateX(THREE.Math.degToRad(-90));
-    scene.add(ground);
+    // roads and median
+    var MAX_LANES = 5;
+    var ROAD_WIDTH = 7;
+    var MEDIAN_WIDTH = 4;
+    var roadAry = [];
+    var medianAry = [];
+    var previous = 0;
+    for(var i = 0; i < MAX_LANES; i++){
+        previous += i;
+        var road = new THREE.PlaneBufferGeometry(ROAD_WIDTH * (i + 1), 150, 1, 5);
+        //var groundPlane = new Ground();
+        //var asphaltTex = THREE.ImageUtils.loadTexture("textures/asphalt.jpg");
+        //asphaltTex.repeat.set(20, 20);
+        //asphaltTex.wrapS = THREE.MirroredRepeatWrapping;
+        //asphaltTex.wrapT = THREE.RepeatWrapping;
+        var roadMat = new THREE.MeshPhongMaterial({color:0xFFFFFF});//, map:asphaltTex});
+        roadAry[i] = new THREE.Mesh(road, roadMat);
+        roadAry[i].rotateX(THREE.Math.degToRad(-90));
+        roadAry[i].translateX((MEDIAN_WIDTH / 2) * (2 * i + 1) + (ROAD_WIDTH / 2) * Math.pow((i + 1), 2));
+        scene.add(roadAry[i]);
+        // add median
+        var median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH, 150, 1, 5);
+        var medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
+        medianAry[i] = new THREE.Mesh(median, medianMat);
+        medianAry[i].rotateX(THREE.Math.degToRad(-90));
+        medianAry[i].translateX((MEDIAN_WIDTH / 2) * (2 * i) + (ROAD_WIDTH / 2) * (Math.pow(i, 2) + i));
+        scene.add(medianAry[i]);
+    }
+
+
+    var axisH = new THREE.AxisHelper(30);
+    scene.add(axisH);
 
 	// street light with curb
 	var streetLight = new StreetLight();
