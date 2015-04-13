@@ -307,9 +307,9 @@ require([], function(){
 				break;
             /**** use WADS for moving the ball ******/
             case 87:    // 'w' moves ball forward
-                ballSpeed += 0.1;
-                ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
-                cameraCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
+                if(ballSpeed <= 0.5) {
+                    ballSpeed += 0.05;
+                }
                 break;
             case 83:    // 's' moves ball backward
                 ballSpeed -= 0.1;
@@ -343,6 +343,8 @@ require([], function(){
         }
     }, false);
 
+    var interval;
+
     document.addEventListener('keyup', function(event){
         switch(event.which) {
             case 16:    // release shift to go back to translating instead of rotating
@@ -350,8 +352,8 @@ require([], function(){
                 break;
             // release any key to stop ball
             case 87:
-                ballSpeed = 0;
-                break
+                interval = setInterval(function(){decreaseBallSpeed(true)}, 100);
+                break;
             case 83:
                 ballSpeed = 0;
                 break;
@@ -364,12 +366,30 @@ require([], function(){
         }
     }, false);
 
+    function decreaseBallSpeed(posDir){
+        if(posDir){
+            if(ballSpeed <= 0.1){
+                clearInterval(interval);
+                ballSpeed = 0;
+                return;
+            }
+
+            ballSpeed -= 0.1;
+            console.log("minusing ballSpeed: " + ballSpeed);
+        }else {
+            ballSpeed += 0.1;
+        }
+    }
+
     onRenderFcts.push(function(delta, now){
         allCars[0]["cf"].decompose(tran, quat, vscale);
         allCars[0]["car"].position.copy(tran);
         allCars[0]["car"].quaternion.copy(quat);
 
         // responsible for ball and camera movement
+        console.log(ballSpeed);
+        ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
+        cameraCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
         ballCF.decompose(tran, quat, vscale);
         ballMesh.position.copy(tran);
         ballMesh.quaternion.copy(quat);
