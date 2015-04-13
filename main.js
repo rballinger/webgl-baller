@@ -306,24 +306,25 @@ require([], function(){
                 run = !run;
 				break;
             /**** use WADS for moving the ball ******/
-            case 87:    // 'w' moves along normal +y-axis, rotates on +x-axis
+            case 87:    // 'w' moves ball forward
                 ballSpeed += 0.1;
-                //ballMesh.translateX(ballSpeed);
-                camera.translateZ(ballSpeed);
                 ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
                 cameraCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
                 break;
-            case 65:    // 'a' moves along normal +z-axis, rotates on +y-axis
-                if(shift)
-                    selected_obj.rotateY(THREE.Math.degToRad(speed));
-                else
-                    selected_obj.position.z += speed;
+            case 83:    // 's' moves ball backward
+                ballSpeed -= 0.1;
+                ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
+                cameraCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
                 break;
-            case 68:    // 'd' moves along normal -z-axis, rotates on -y-axis
-                if(shift)
-                    selected_obj.rotateY(THREE.Math.degToRad(-speed));
-                else
-                    selected_obj.position.z -= speed;
+            case 65:    // 'a' moves ball left
+                ballSpeed -= 0.1;
+                ballCF.multiply(new THREE.Matrix4().makeTranslation(0, 0, ballSpeed));
+                cameraCF.multiply(new THREE.Matrix4().makeTranslation(0, 0, ballSpeed));
+                break;
+            case 68:    // 'd' moves ball right
+                ballSpeed += 0.1;
+                ballCF.multiply(new THREE.Matrix4().makeTranslation(0, 0, ballSpeed));
+                cameraCF.multiply(new THREE.Matrix4().makeTranslation(0, 0, ballSpeed));
                 break;
             case 69:    // 'e' moves along normal +x-axis, rotates on -z-axis
                 if(shift)
@@ -338,12 +339,7 @@ require([], function(){
                     selected_obj.position.x -= speed;
                 break;
 
-            case 83:    // 's' moves along normal -y-axis, rotates on -x-axis
-                if(shift)
-                    selected_obj.rotateX(THREE.Math.degToRad(-speed));
-                else
-                    selected_obj.position.y -= speed;
-                break;
+
         }
     }, false);
 
@@ -352,11 +348,18 @@ require([], function(){
             case 16:    // release shift to go back to translating instead of rotating
                 shift = false;
                 break;
-            case 87:    // release "w" to stop ball
+            // release any key to stop ball
+            case 87:
+                ballSpeed = 0;
+                break
+            case 83:
                 ballSpeed = 0;
                 break;
-            case 75:    // release drive backward key to stop car
-                carSpeed = 0;
+            case 65:
+                ballSpeed = 0;
+                break;
+            case 68:
+                ballSpeed = 0;
                 break;
         }
     }, false);
