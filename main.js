@@ -215,7 +215,6 @@ require([], function(){
     }
 
     var totalArea1Length = MAX_LANES * MEDIAN_WIDTH + 6 * ROAD_WIDTH;
-    console.log(totalArea1Length);
 
     var WALL_HEIGHT = 15;
     var wallLeftTex = THREE.ImageUtils.loadTexture("textures/tunnelLeft.png");
@@ -291,8 +290,13 @@ require([], function(){
         mouse.y	= (event.clientY / window.innerHeight) - 0.5;
     }, false);
 
+    var MAX_SPEED = 0.3;
+    var SPEED_STEP = 0.05;
+    var intervalX;
+    var intervalZ;
     var speed = 1.0;
-    var ballSpeed = 0;
+    var ballSpeedX = 0;
+    var ballSpeedZ = 0;
     var shift = false;  // if shift is being held or not
     var selected_obj = camera;
     document.addEventListener('keydown', function(event){
@@ -307,43 +311,40 @@ require([], function(){
 				break;
             /**** use WADS for moving the ball ******/
             case 87:    // 'w' moves ball forward
-                if(ballSpeed <= 0.5) {
-                    ballSpeed += 0.05;
+                clearInterval(intervalX);
+                if(ballSpeedX <= MAX_SPEED) {
+                    ballSpeedX += SPEED_STEP;
                 }
                 break;
             case 83:    // 's' moves ball backward
-                ballSpeed -= 0.1;
-                ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
-                cameraCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
+                clearInterval(intervalX);
+                if(ballSpeedX >= -MAX_SPEED){
+                    ballSpeedX -= SPEED_STEP;
+                }
                 break;
             case 65:    // 'a' moves ball left
-                ballSpeed -= 0.1;
-                ballCF.multiply(new THREE.Matrix4().makeTranslation(0, 0, ballSpeed));
-                cameraCF.multiply(new THREE.Matrix4().makeTranslation(0, 0, ballSpeed));
+                clearInterval(intervalZ);
+                if(ballSpeedZ >= -MAX_SPEED){
+                    ballSpeedZ -= SPEED_STEP;
+                }
                 break;
             case 68:    // 'd' moves ball right
-                ballSpeed += 0.1;
-                ballCF.multiply(new THREE.Matrix4().makeTranslation(0, 0, ballSpeed));
-                cameraCF.multiply(new THREE.Matrix4().makeTranslation(0, 0, ballSpeed));
+                clearInterval(intervalZ);
+                if(ballSpeedZ <= MAX_SPEED) {
+                    ballSpeedZ += SPEED_STEP;
+                }
                 break;
-            case 69:    // 'e' moves along normal +x-axis, rotates on -z-axis
-                if(shift)
-                    selected_obj.rotateZ(THREE.Math.degToRad(-speed));
-                else
-                    selected_obj.position.x += speed;
-                break;
-            case 81:    // 'q' moves along normal -x-axis, rotates on +z-axis
-                if(shift)
-                    selected_obj.rotateZ(THREE.Math.degToRad(speed));
-                else
-                    selected_obj.position.x -= speed;
-                break;
+            /* not used currently
+            case 69:    // 'e' rotates camera right
 
+                break;
+            case 81:    // 'q' rotates camera left
+
+                break;
+            */
 
         }
     }, false);
-
-    var interval;
 
     document.addEventListener('keyup', function(event){
         switch(event.which) {
@@ -352,32 +353,49 @@ require([], function(){
                 break;
             // release any key to stop ball
             case 87:
-                interval = setInterval(function(){decreaseBallSpeed(true)}, 100);
+                intervalX = setInterval(function(){decreaseBallSpeed("posx")}, 50);
                 break;
             case 83:
-                ballSpeed = 0;
+                intervalX = setInterval(function(){decreaseBallSpeed("negx")}, 50);
                 break;
             case 65:
-                ballSpeed = 0;
+                intervalZ = setInterval(function(){decreaseBallSpeed("negz")}, 50);
                 break;
             case 68:
-                ballSpeed = 0;
+                intervalZ = setInterval(function(){decreaseBallSpeed("posz")}, 50);
                 break;
         }
     }, false);
 
-    function decreaseBallSpeed(posDir){
-        if(posDir){
-            if(ballSpeed <= 0.1){
-                clearInterval(interval);
-                ballSpeed = 0;
+    function decreaseBallSpeed(dir){
+        if(dir == "posx"){
+            if(ballSpeedX <= 0.1){
+                clearInterval(intervalX);
+                ballSpeedX = 0;
                 return;
             }
-
-            ballSpeed -= 0.1;
-            console.log("minusing ballSpeed: " + ballSpeed);
-        }else {
-            ballSpeed += 0.1;
+            ballSpeedX -= SPEED_STEP;
+        }else if(dir == "negx") {
+            if (ballSpeedX >= -0.1) {
+                clearInterval(intervalX);
+                ballSpeedX = 0;
+                return
+            }
+            ballSpeedX += SPEED_STEP;
+        }else if(dir == "negz"){
+            if(ballSpeedZ >= -0.1){
+                clearInterval(intervalZ);
+                ballSpeedZ = 0;
+                return;
+            }
+            ballSpeedZ += SPEED_STEP;
+        }else if(dir == "posz"){
+            if(ballSpeedZ <= 0.1){
+                clearInterval(intervalZ);
+                ballSpeedZ = 0;
+                return;
+            }
+            ballSpeedZ -= SPEED_STEP;
         }
     }
 
@@ -387,9 +405,8 @@ require([], function(){
         allCars[0]["car"].quaternion.copy(quat);
 
         // responsible for ball and camera movement
-        console.log(ballSpeed);
-        ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
-        cameraCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
+        ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeedX, 0, ballSpeedZ));
+        cameraCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeedX, 0, ballSpeedZ));
         ballCF.decompose(tran, quat, vscale);
         ballMesh.position.copy(tran);
         ballMesh.quaternion.copy(quat);
