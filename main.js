@@ -21,6 +21,13 @@ require([], function(){
     // setup a scene and camera
     var scene	= new THREE.Scene();
     var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
+
+    var ballRad = 0.5;
+    var ballCF = new THREE.Matrix4();
+    ballCF.multiply(new THREE.Matrix4().makeTranslation(0, ballRad, 0));
+    var cameraCF = new THREE.Matrix4();
+    cameraCF.multiply(ballCF);
+    cameraCF.multiply(new THREE.Matrix4().makeTranslation(-10, 3, 0));
     camera.position.set(-75, 40, 0);
     //position.set(100, 100, 100);
     camera.lookAt(new THREE.Vector3(100, 0, 0));
@@ -181,7 +188,7 @@ require([], function(){
 
     var totalArea1Width = 150;
 
-    // roads and median
+    // roads and medians
     var MAX_LANES = 3;
     var ROAD_WIDTH = 14;
     var MEDIAN_WIDTH = 4;
@@ -235,6 +242,16 @@ require([], function(){
     var origin = new THREE.AxisHelper(30);
     scene.add(origin);
 
+    // create ball "william"
+
+    var ball = new THREE.SphereGeometry(ballRad, 20, 20);
+    var ballMat = new THREE.MeshPhongMaterial({color:0xFFFF00});
+    var ballMesh = new THREE.Mesh(ball, ballMat);
+    ballMesh.translateY(ballRad);
+    scene.add(ballMesh);
+
+
+
     onRenderFcts.push(function(delta, now){
 		if(run){
 			for(var i = 0; i < totalCars; i++){
@@ -274,19 +291,12 @@ require([], function(){
         mouse.y	= (event.clientY / window.innerHeight) - 0.5;
     }, false);
 
-    var speed = 5.0;
-    var carSpeed = 0;
+    var speed = 1.0;
+    var ballSpeed = 0;
     var shift = false;  // if shift is being held or not
     var selected_obj = camera;
     document.addEventListener('keydown', function(event){
         switch(event.which){
-            /**** to select objects ******/
-            case 84:    // 't' to select car
-                selected_obj = car;
-                break;
-            case 67:    // 'c' to select camera
-                selected_obj = camera;
-                break;
             /**** hold shift to rotate objects *****/
             case 16:    // hold shift to rotate objects
                 shift = true;
@@ -295,7 +305,14 @@ require([], function(){
             case 32:
                 run = !run;
 				break;
-            /**** for moving/rotating selected object ******/
+            /**** use WADS for moving the ball ******/
+            case 87:    // 'w' moves along normal +y-axis, rotates on +x-axis
+                ballSpeed += 0.1;
+                //ballMesh.translateX(ballSpeed);
+                camera.translateZ(ballSpeed);
+                ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
+                cameraCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeed, 0, 0));
+                break;
             case 65:    // 'a' moves along normal +z-axis, rotates on +y-axis
                 if(shift)
                     selected_obj.rotateY(THREE.Math.degToRad(speed));
@@ -320,32 +337,12 @@ require([], function(){
                 else
                     selected_obj.position.x -= speed;
                 break;
-            case 87:    // 'w' moves along normal +y-axis, rotates on +x-axis
-                if(shift)
-                    selected_obj.rotateX(THREE.Math.degToRad(speed));
-                else
-                    selected_obj.position.y += speed;
-                break;
+
             case 83:    // 's' moves along normal -y-axis, rotates on -x-axis
                 if(shift)
                     selected_obj.rotateX(THREE.Math.degToRad(-speed));
                 else
                     selected_obj.position.y -= speed;
-                break;
-            /***** other stuff ******/
-            case 73:    // 'i' "drive" car forward when it's selected
-                if(selected_obj == allCars[0]) {
-                    carSpeed += 0.1;
-                    allCars[0]["cf"].multiply(new THREE.Matrix4().makeTranslation(0, -carSpeed, 0));
-                    allCars[0].rotateTires(carSpeed);
-                }
-                break;
-            case 75:    // 'k' to drive car backward when it's selected
-                if(selected_obj == allCars[0]) {
-                    carSpeed += 0.1;
-                    allCars[0]["cf"].multiply(new THREE.Matrix4().makeTranslation(0, carSpeed, 0));
-                    allCars[0].rotateTires(-carSpeed);
-                }
                 break;
         }
     }, false);
@@ -355,8 +352,8 @@ require([], function(){
             case 16:    // release shift to go back to translating instead of rotating
                 shift = false;
                 break;
-            case 73:    // release drive forward key to stop car
-                carSpeed = 0;
+            case 87:    // release "w" to stop ball
+                ballSpeed = 0;
                 break;
             case 75:    // release drive backward key to stop car
                 carSpeed = 0;
@@ -368,6 +365,16 @@ require([], function(){
         allCars[0]["cf"].decompose(tran, quat, vscale);
         allCars[0]["car"].position.copy(tran);
         allCars[0]["car"].quaternion.copy(quat);
+
+        // responsible for ball and camera movement
+        ballCF.decompose(tran, quat, vscale);
+        ballMesh.position.copy(tran);
+        ballMesh.quaternion.copy(quat);
+        cameraCF.decompose(tran, quat, vscale);
+        camera.position.copy(tran);
+        camera.quaternion.copy(quat);
+        camera.lookAt(ballMesh.position);
+
 
         /*allCars[0]["lightR_cf"] = new THREE.Matrix4().copy(allCars[0]["cf"]);
         allCars[0]["lightR_cf"].multiply(new THREE.Matrix4().makeTranslation(1.7, 0, (allCars[0]["car"].offGround + allCars[0]["car"].chassisHeight - 0.5) * 3.5));
@@ -387,9 +394,6 @@ require([], function(){
     //////////////////////////////////////////////////////////////////////////////////
     onRenderFcts.push(function(){
         renderer.render( scene, camera );
-
-
-
     });
 
     //////////////////////////////////////////////////////////////////////////////////
