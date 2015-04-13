@@ -40,8 +40,10 @@ require([], function(){
 	// position of car one
 	var carOneYSpeed = -1;
 
-	var tunnelRightPos = -125;
-	var tunnelLeftPos = 125;
+	// distance from 0,0,0 to either tunnel face
+	var tunnelEnd = 95;
+
+	var totalCars = 3;
 
     //////////////////////////////////////////////////////////////////////////////////
     //		lighting					//
@@ -64,32 +66,119 @@ require([], function(){
     var quat = new THREE.Quaternion();
     var vscale = new THREE.Vector3();
 
-    var car_cf = new THREE.Matrix4();
-    car_cf.makeTranslation(60, 0, -165);
-    car_cf.multiply(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(-90)));
-    //car_cf.multiply(new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(-90)));
-    car_cf.decompose(tran, quat, vscale);
+	var allCars = [];
+	var roadPositions = [0,1,2,3,4,5];
 
-    // add car
-    var car = new Car();
-    // set car to car_cf
-    car.position.copy(tran);
-    car.quaternion.copy(quat);
-	car.scale.set(1,1,1);
-    scene.add(car);
+	var occupiedLanes = [];// only one car to a lane
 
-    // headlight coord frames
-    var lightR_cf;
-    var lightL_cf;
-    // add headlights
-    var lightR = new THREE.SpotLight('white', 10, 100, Math.PI/6, 1);
-    lightR.target.position.set(0, 0, 1000);
-    lightR.target.updateMatrixWorld();
-    var lightL = new THREE.SpotLight('white', 10, 100, Math.PI/6, 1);
-    lightL.target.position.set(0, 0, 1000);
-    lightL.target.updateMatrixWorld();
-    scene.add(lightR);
-    scene.add(lightL);
+	occupiedLanes["left"] = [false,false,false,false,false,false];
+	occupiedLanes["right"] = [false,false,false,false,false,false];
+
+	// make random cars
+	for(var i = 0; i < totalCars; i++){
+		var dir = "left";
+		if(Math.floor(Math.random() * (1 - 0 + 1)) + 0 == 1){
+			dir = "right";
+		}
+		var randRoad = Math.floor(Math.random() * (5 - 0)) + 0;
+		var randSpeed = Math.random() * (1.7 - 0.4) + 0.4;
+		// if car attempted to take an occupied lane run loop again
+		if(!occupiedLanes[dir][randRoad]){
+			allCars[i] = createCar(dir,roadPositions[randRoad],randSpeed);
+		}else{
+			i--;
+		}
+		occupiedLanes[dir][randRoad] = true;	// lane occupied
+	}
+
+
+	function createCar(direction,road,speed){
+		var lane = 0;
+
+		if(direction == "right"){
+			if(road == 0){
+				lane = 3.5;
+			}else if(road == 1){
+				lane = 21.5;
+			}else if(road == 2){
+				lane = 35.5;
+			}else if(road == 3){
+				lane = 53.5;
+			}else if(road == 4){
+				lane = 67.5;
+			}else if(road == 5){
+				lane = 81.5;
+			}
+		}else if(direction == "left"){
+			if(road == 0){
+				lane = 13.7;
+			}else if(road == 1){
+				lane = 31.7;
+			}else if(road == 2){
+				lane = 45.7;
+			}else if(road == 3){
+				lane = 63.7;
+			}else if(road == 4){
+				lane = 77.7;
+			}else if(road == 5){
+				lane = 91.5;
+			}
+		}
+
+		var changeDir = 1;
+		if(direction == "left"){
+			changeDir = -1;
+		}
+
+		if(speed < 0){
+			speed = speed*-1;
+		}
+		// add car
+		var car_cf = new THREE.Matrix4();
+		
+		if(direction == "left"){
+			car_cf.makeTranslation(lane, 0, -120);
+			car_cf.multiply(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(90)));
+			car_cf.multiply(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(180)));
+		}else{
+			car_cf.makeTranslation(lane, 0, -120);
+			car_cf.multiply(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(-90)));
+		}
+		car_cf.decompose(tran, quat, vscale);
+		var car = new Car();
+		// set car to car_cf
+		car.position.copy(tran);
+		car.quaternion.copy(quat);
+		car.scale.set(1,1,1);
+		scene.add(car);
+
+		// headlight coord frames
+		var lightR_cf;
+		var lightL_cf;
+		// add headlights
+		var lightR = new THREE.SpotLight('white', 10, 200, Math.PI/12, 1);
+		lightR.target.position.set(0, -300, 1000*changeDir);
+		lightR.target.updateMatrixWorld();
+		var lightL = new THREE.SpotLight('white', 10, 200, Math.PI/12, 1);
+		lightL.target.position.set(0, -300, 1000*changeDir);
+		lightL.target.updateMatrixWorld();
+		scene.add(lightR);
+		scene.add(lightL);
+
+		var totalCar = [];
+
+		totalCar["car"] = car;
+		totalCar["lightL"] = lightL;
+		totalCar["lightR"] = lightR;
+		totalCar["lightR_cf"] = lightR_cf;
+		totalCar["lightL_cf"] = lightL_cf;
+		totalCar["cf"] = car_cf;
+		totalCar["speed"] = speed;
+		totalCar["lane"] = lane;
+		totalCar["direction"] = direction;
+
+		return totalCar;
+	}
 
     var totalArea1Width = 150;
 
@@ -146,170 +235,31 @@ require([], function(){
 
     var origin = new THREE.AxisHelper(30);
     scene.add(origin);
-/*
-    // road ways
-    var roadOnePlane = new THREE.PlaneBufferGeometry(260, 50, 5, 5);
-    var asphaltTex = THREE.ImageUtils.loadTexture("textures/road.jpg");
-    asphaltTex.repeat.set(1, 1);
-    asphaltTex.wrapS = THREE.MirroredRepeatWrapping;
-    asphaltTex.wrapT = THREE.RepeatWrapping;
-	var roadMat = new THREE.MeshPhongMaterial({color:0x696969, map:asphaltTex});
-	var roadOne = new THREE.Mesh(roadOnePlane, roadMat);
-    roadOne.rotateX(THREE.Math.degToRad(-90));
-	roadOne.rotateZ(THREE.Math.degToRad(-90));
-	roadOne.translateY(-50);
-    scene.add(roadOne);
-
-	var roadTwo = new THREE.Mesh(roadOnePlane, roadMat);
-    roadTwo.rotateX(THREE.Math.degToRad(-90));
-	roadTwo.rotateZ(THREE.Math.degToRad(-90));
-	roadTwo.translateY(50);
-    scene.add(roadTwo);
-
-	// Grass
-    var grassPlane = new THREE.PlaneBufferGeometry(260, 50, 5, 5);
-    var grassTex = THREE.ImageUtils.loadTexture("textures/grass.jpg");
-    grassTex.repeat.set(1, 1);
-    grassTex.wrapS = THREE.MirroredRepeatWrapping;
-    grassTex.wrapT = THREE.RepeatWrapping;
-	var grassMat = new THREE.MeshPhongMaterial({color:0x696969, map:grassTex});
-	var grassMid = new THREE.Mesh(grassPlane, grassMat);
-    grassMid.rotateX(THREE.Math.degToRad(-90));
-	grassMid.rotateZ(THREE.Math.degToRad(-90));
-    scene.add(grassMid);
-
-	var grassBegin = new THREE.Mesh(grassPlane, grassMat);
-    grassBegin.rotateX(THREE.Math.degToRad(-90));
-	grassBegin.rotateZ(THREE.Math.degToRad(-90));
-	grassBegin.translateY(100);
-    scene.add(grassBegin);
-
-	var grassEnd = new THREE.Mesh(grassPlane, grassMat);
-    grassEnd.rotateX(THREE.Math.degToRad(-90));
-	grassEnd.rotateZ(THREE.Math.degToRad(-90));
-	grassEnd.translateY(-100);
-    scene.add(grassEnd);
-
-	// Tunnel
-    var tunnelPlane = new THREE.PlaneBufferGeometry(102, 60, 5, 5);
-    var tunnelTex = THREE.ImageUtils.loadTexture("textures/tunnel.jpg");
-    tunnelTex.repeat.set(1, 1);
-    tunnelTex.wrapS = THREE.MirroredRepeatWrapping;
-    tunnelTex.wrapT = THREE.RepeatWrapping;
-	var tunnelMat = new THREE.MeshPhongMaterial({color:0x696969, map:tunnelTex});
-	var tunnelOne = new THREE.Mesh(tunnelPlane, tunnelMat);
-	tunnelOne.translateY(18);
-	tunnelOne.translateX(51);
-	tunnelOne.translateZ(tunnelRightPos);
-    scene.add(tunnelOne);
-
-	var tunnelTwo = new THREE.Mesh(tunnelPlane, tunnelMat);
-	tunnelTwo.translateY(18);
-	tunnelTwo.translateX(-51);
-	tunnelTwo.translateZ(tunnelRightPos);
-    scene.add(tunnelTwo);
-
-	var tunnelThree = new THREE.Mesh(tunnelPlane, tunnelMat);
-	tunnelThree.translateY(18);
-	tunnelThree.translateX(51);
-	tunnelThree.translateZ(tunnelLeftPos);
-	tunnelThree.rotateY(THREE.Math.degToRad(180));
-    scene.add(tunnelThree);
-
-	var tunnelFour = new THREE.Mesh(tunnelPlane, tunnelMat);
-	tunnelFour.translateY(18);
-	tunnelFour.translateX(-51);
-	tunnelFour.translateZ(tunnelLeftPos);
-	tunnelFour.rotateY(THREE.Math.degToRad(180));
-    scene.add(tunnelFour);
-
-	// rock wall
-    var wallPlane = new THREE.PlaneBufferGeometry(248, 95, 5, 5);
-    var wallTex = THREE.ImageUtils.loadTexture("textures/rockWall.jpg");
-    wallTex.repeat.set(1, 1);
-    wallTex.wrapS = THREE.MirroredRepeatWrapping;
-    wallTex.wrapT = THREE.RepeatWrapping;
-	var wallMat = new THREE.MeshPhongMaterial({color:0x696969, map:wallTex});
-	var wallOne = new THREE.Mesh(wallPlane, wallMat);
-	wallOne.translateY(48);
-	wallOne.translateZ(-125.7);
-    scene.add(wallOne);
-
-	var wallTwo = new THREE.Mesh(wallPlane, wallMat);
-	wallTwo.translateY(48);
-	wallTwo.translateZ(125.7);
-	wallTwo.rotateY(THREE.Math.degToRad(180));
-    scene.add(wallTwo);
-*/
-	// street light with curb
-	/*var streetLight = new StreetLight();
-    streetLight.rotateY(THREE.Math.degToRad(90));
-    streetLight.position.set(0, 8, 10);
-	scene.add(streetLight);
-    // spotlight for streetlight
-    var streetLamp	= new THREE.SpotLight('white', 10, 40, Math.PI/4);
-    streetLamp.position.set(8, 22, 16);
-    streetLamp.target.position.set(8, 0, 16);
-    streetLamp.target.updateMatrixWorld();
-    scene.add( streetLamp );
-    var helper = new THREE.SpotLightHelper(streetLamp);
-    scene.add(helper);*/
-
-	/*var tree1 = new Tree();
-	scene.add(tree1);
-	//tree1.position.set (0, 38, 85);
-
-    var tree1_cf = new THREE.Matrix4();
-    tree1_cf.makeTranslation(0, 38, 85);
-    tree1_cf.decompose(tran, quat, vscale);
-
-    tree1.position.copy(tran);
-    tree1.quaternion.copy(quat);
-
-	var tree2 = new Tree();
-	scene.add(tree2);
-	//tree2.position.set (0, 38, 0);
-
-    var tree2_cf = new THREE.Matrix4();
-    tree2_cf.makeTranslation(0, 38, 0);
-    tree2_cf.decompose(tran, quat, vscale);
-
-    tree2.position.copy(tran);
-    tree2.quaternion.copy(quat);
-
-	var tree3 = new Tree();
-	scene.add(tree3);
-	//tree3.position.set (0, 38, -85);
-
-    var tree3_cf = new THREE.Matrix4();
-    tree3_cf.makeTranslation(0, 38, -85);
-    tree3_cf.decompose(tran, quat, vscale);
-
-    tree3.position.copy(tran);
-    tree3.quaternion.copy(quat);*/
 
     onRenderFcts.push(function(delta, now){
 		if(run){
-			/* TODO */
+			for(var i = 0; i < totalCars; i++){
+				allCars[i]["cf"].multiply(new THREE.Matrix4().makeTranslation(0, -allCars[i]["speed"], 0));
+				allCars[i]["cf"].decompose(tran, quat, vscale);
+				allCars[i]["car"].position.copy(tran);
+				allCars[i]["car"].quaternion.copy(quat);
 
-		    car_cf.multiply(new THREE.Matrix4().makeTranslation(0, carOneYSpeed, 0));
-		    car_cf.decompose(tran, quat, vscale);
-		    car.position.copy(tran);
-    		car.quaternion.copy(quat);
-
-			// get the coordinates of the car
-			var position = new THREE.Vector3();
-			position.getPositionFromMatrix( car.matrixWorld );
+				// get the coordinates of the car
+				var position = new THREE.Vector3();
+				position.getPositionFromMatrix( allCars[i]["car"].matrixWorld );
 				
-			// move car to other end of tunnel to restart its path
-			if(position.z > tunnelLeftPos + 55){
-				//holdTime = now;
-
-				//if(holdTime - now > 1000000){
-					car_cf.makeTranslation(60, 0, -165);
-					car_cf.multiply(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(-90)));
-					car_cf.decompose(tran, quat, vscale);
-				//}
+				// move car to other end of tunnel to restart its path
+				if(allCars[i]["direction"] = "left" && position.z < -tunnelEnd - 35){
+					allCars[i]["cf"].multiply(new THREE.Matrix4().makeTranslation(0, 2*(tunnelEnd + 35), 0));
+					allCars[i]["cf"].decompose(tran, quat, vscale);
+					allCars[i]["car"].position.copy(tran);
+					allCars[i]["car"].quaternion.copy(quat);
+				}else if(allCars[i]["direction"] = "right" && position.z > tunnelEnd + 35){
+					allCars[i]["cf"].multiply(new THREE.Matrix4().makeTranslation(0, 2*(tunnelEnd + 35), 0));
+					allCars[i]["cf"].decompose(tran, quat, vscale);
+					allCars[i]["car"].position.copy(tran);
+					allCars[i]["car"].quaternion.copy(quat);
+				}
 			}
 		}
 
@@ -385,17 +335,17 @@ require([], function(){
                 break;
             /***** other stuff ******/
             case 73:    // 'i' "drive" car forward when it's selected
-                if(selected_obj == car) {
+                if(selected_obj == allCars[0]) {
                     carSpeed += 0.1;
-                    car_cf.multiply(new THREE.Matrix4().makeTranslation(0, -carSpeed, 0));
-                    car.rotateTires(carSpeed);
+                    allCars[0]["cf"].multiply(new THREE.Matrix4().makeTranslation(0, -carSpeed, 0));
+                    allCars[0].rotateTires(carSpeed);
                 }
                 break;
             case 75:    // 'k' to drive car backward when it's selected
-                if(selected_obj == car) {
+                if(selected_obj == allCars[0]) {
                     carSpeed += 0.1;
-                    car_cf.multiply(new THREE.Matrix4().makeTranslation(0, carSpeed, 0));
-                    car.rotateTires(-carSpeed);
+                    allCars[0]["cf"].multiply(new THREE.Matrix4().makeTranslation(0, carSpeed, 0));
+                    allCars[0].rotateTires(-carSpeed);
                 }
                 break;
         }
@@ -416,21 +366,21 @@ require([], function(){
     }, false);
 
     onRenderFcts.push(function(delta, now){
-        car_cf.decompose(tran, quat, vscale);
-        car.position.copy(tran);
-        car.quaternion.copy(quat);
+        allCars[0]["cf"].decompose(tran, quat, vscale);
+        allCars[0]["car"].position.copy(tran);
+        allCars[0]["car"].quaternion.copy(quat);
 
-        lightR_cf = new THREE.Matrix4().copy(car_cf);
-        lightR_cf.multiply(new THREE.Matrix4().makeTranslation(1.7, 0, (car.offGround + car.chassisHeight - 0.5) * 3.5));
-        lightR_cf.decompose(tran, quat, vscale);
-        lightR.position.copy(tran);
-        lightR.quaternion.copy(quat);
+        allCars[0]["lightR_cf"] = new THREE.Matrix4().copy(allCars[0]["cf"]);
+        allCars[0]["lightR_cf"].multiply(new THREE.Matrix4().makeTranslation(1.7, 0, (allCars[0]["car"].offGround + allCars[0]["car"].chassisHeight - 0.5) * 3.5));
+        allCars[0]["lightR_cf"].decompose(tran, quat, vscale);
+        allCars[0]["lightR"].position.copy(tran);
+        allCars[0]["lightR"].quaternion.copy(quat);
 
-        lightL_cf = new THREE.Matrix4().copy(lightR_cf);
-        lightL_cf.multiply(new THREE.Matrix4().makeTranslation((car.chassisWidth - 1)*3.5, 0, 0))
-        lightL_cf.decompose(tran, quat, vscale);
-        lightL.position.copy(tran);
-        lightL.quaternion.copy(quat);
+        allCars[0]["lightL_cf"] = new THREE.Matrix4().copy(allCars[0]["lightR_cf"]);
+        allCars[0]["lightL_cf"].multiply(new THREE.Matrix4().makeTranslation((allCars[0].chassisWidth - 1)*3.5, 0, 0))
+        allCars[0]["lightL_cf"].decompose(tran, quat, vscale);
+        allCars[0]["lightL"].position.copy(tran);
+        allCars[0]["lightL"].quaternion.copy(quat);
     });
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -460,3 +410,4 @@ require([], function(){
         })
     })
 })
+
