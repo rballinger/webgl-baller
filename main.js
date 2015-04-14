@@ -332,7 +332,8 @@ require([], function(){
         new THREE.Vector3(0, 0, -1),
         new THREE.Vector3(-1, 0, -1),
         new THREE.Vector3(-1, 0, 0),
-        new THREE.Vector3(-1, 0, 1)
+        new THREE.Vector3(-1, 0, 1),
+        new THREE.Vector3(0, -1, 0)
     ];
     // add raycaster to test for intersections
     ballMesh.caster = new THREE.Raycaster();
@@ -347,7 +348,7 @@ require([], function(){
             collisions = ballMesh.caster.intersectObjects(sceneObstacles);
 
 
-            if (collisions.length > 0 && collisions[0].distance <= 0.5) {
+            if (collisions.length > 0 && collisions[0].distance <= 0.6) {
                 console.log(collisions[0].distance);
                 console.log("COLLIDED!");
                 console.log("*" + i + "*\n");
@@ -364,9 +365,15 @@ require([], function(){
                     ballMesh.direction.setX(0);
                 }
 
-                if((i === 1 || i === 2 || i === 3) && ballMesh.direction.x === ballSpeed && ballMesh.direction.z === ballSpeed){
+                if ((i === 1 || i === 2 || i === 3) && ballMesh.direction.x === ballSpeed && ballMesh.direction.z === ballSpeed) {
 
                 }
+
+                if (i === 8) {
+                    ballMesh.direction.setY(0);
+                }
+
+
             }
         }
     }
@@ -377,13 +384,21 @@ require([], function(){
     testBoxMesh.position.set(10, 2, 1);
     scene.add(testBoxMesh);
 
+
+    // add all scene obstacles
     var sceneObstacles = [];
     sceneObstacles.push(testBoxMesh);
+    for(var i = 0; i < roadAry.length; i++){
+        sceneObstacles.push(roadAry[i]);
+    }
+    for(var i = 0; i < medianAry.length; i++) {
+        sceneObstacles.push(medianAry[i]);
+    }
 
     // sets which way the ball rolls
     function setBallDirection(controls){
         var x = controls.forward ? ballSpeed : controls.back ? -ballSpeed : 0,
-            y = 0;
+            y = -ballSpeed;
             z = controls.right ? ballSpeed : controls.left ? -ballSpeed : 0;
         ballMesh.direction.set(x, y, z);
     }
@@ -399,7 +414,7 @@ require([], function(){
 		return false;	
 	}
 
-    // detects if the ball hits an object
+    // detects if the reaches scene limits
     function ballLimitCollide(){
         // limits ball movement from going forward too far
         if(ballMesh.direction.x > 0 && ballMesh.position.x >= 112){
@@ -448,8 +463,10 @@ require([], function(){
             console.log(ballMesh.direction);
             xTrans = ballMesh.direction.x * ((ballMesh.direction.z === 0) ? 4 : Math.sqrt(8));
             zTrans = ballMesh.direction.z * ((ballMesh.direction.x === 0) ? 4 : Math.sqrt(8));
+            yTrans = ballMesh.direction.y * ((ballMesh.direction.y === 0) ? 8 : Math.sqrt(16));
             ballMesh.position.x += xTrans;
             ballMesh.position.z += zTrans;
+            ballMesh.position.y += yTrans;
             cameraCF.multiply(new THREE.Matrix4().makeTranslation(xTrans, 0, zTrans));
 
             if(ballMesh.direction.x == ballSpeed){

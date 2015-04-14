@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="530fcfb8-0da4-44a8-8d1a-85590514d5e1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Models/Tree.js" afterPath="$PROJECT_DIR$/Models/Tree.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.js" afterPath="$PROJECT_DIR$/main.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="WebGLProject3.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -43,13 +41,9 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.25625" vertical-offset="7085" max-vertical-offset="10897">
-              <caret line="426" column="27" selection-start-line="426" selection-start-column="27" selection-end-line="426" selection-end-column="27" />
-              <folding>
-                <marker date="1429043868468" expanded="true" signature="222:15985" placeholder="{...}" />
-                <marker date="1429043868468" expanded="true" signature="14273:15964" placeholder="{...}" />
-                <marker date="1429043868468" expanded="true" signature="14371:14774" placeholder="{...}" />
-              </folding>
+            <state vertical-scroll-proportion="0.25625" vertical-offset="5793" max-vertical-offset="11186">
+              <caret line="350" column="70" selection-start-line="350" selection-start-column="70" selection-end-line="350" selection-end-column="70" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -663,13 +657,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.25625" vertical-offset="7085" max-vertical-offset="10897">
-          <caret line="426" column="27" selection-start-line="426" selection-start-column="27" selection-end-line="426" selection-end-column="27" />
-          <folding>
-            <marker date="1429043868468" expanded="true" signature="222:15985" placeholder="{...}" />
-            <marker date="1429043868468" expanded="true" signature="14273:15964" placeholder="{...}" />
-            <marker date="1429043868468" expanded="true" signature="14371:14774" placeholder="{...}" />
-          </folding>
+        <state vertical-scroll-proportion="0.25625" vertical-offset="5793" max-vertical-offset="11186">
+          <caret line="350" column="70" selection-start-line="350" selection-start-column="70" selection-end-line="350" selection-end-column="70" />
+          <folding />
         </state>
       </provider>
     </entry>
