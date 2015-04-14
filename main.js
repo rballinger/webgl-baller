@@ -19,18 +19,15 @@ require([], function(){
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
     // setup a scene and camera
-    var scene	= new THREE.Scene();
-    var camera	= new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
 
     var ballRad = 0.5;
     var ballCF = new THREE.Matrix4();
     ballCF.multiply(new THREE.Matrix4().makeTranslation(0, ballRad, 0));
     var cameraCF = new THREE.Matrix4();
     cameraCF.multiply(ballCF);
-    cameraCF.multiply(new THREE.Matrix4().makeTranslation(-10, 3, 0));
-    camera.position.set(-75, 40, 0);
-    //position.set(100, 100, 100);
-    camera.lookAt(new THREE.Vector3(100, 0, 0));
+    cameraCF.multiply(new THREE.Matrix4().makeTranslation(-15, 4, 0));
 
 	// determines if call-back will render new scene
 	var run = true;
@@ -84,10 +81,10 @@ require([], function(){
 	// make random cars
 	for(var i = 0; i < totalCars; i++){
 		var dir = "left";
-		if(Math.floor(Math.random() * (1 - 0 + 1)) + 0 == 1){
+		if(Math.floor(Math.random() * 2) == 1){
 			dir = "right";
 		}
-		var randRoad = Math.floor(Math.random() * (5 - 0)) + 0;
+		var randRoad = Math.floor(Math.random() * 5);
 		var randSpeed = Math.random() * (1.7 - 0.4) + 0.4;
 		// if car attempted to take an occupied lane run loop again
 		if(!occupiedLanes[dir][randRoad]){
@@ -186,9 +183,8 @@ require([], function(){
 		return totalCar;
 	}
 
-    var totalArea1Width = 150;
-
     // roads and medians
+    var totalArea1Width = 150;
     var MAX_LANES = 3;
     var ROAD_WIDTH = 14;
     var MEDIAN_WIDTH = 4;
@@ -206,16 +202,24 @@ require([], function(){
         roadAry[i].translateX((MEDIAN_WIDTH / 2) * (2 * i + 1) + (ROAD_WIDTH / 2) * Math.pow((i + 1), 2));
         scene.add(roadAry[i]);
         // add median
-        var median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH, 150, 1, 5);
-        var medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
-        medianAry[i] = new THREE.Mesh(median, medianMat);
+        var median;
+        var medianMat;
+        if(i == 0){
+            median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH * 5, 150, 1, 5);
+            medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
+            medianAry[i] = new THREE.Mesh(median, medianMat);
+            medianAry[i].translateX(-MEDIAN_WIDTH / 2 * 4, 0, 0);
+        }else{
+            median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH, 150, 1, 5);
+            medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
+            medianAry[i] = new THREE.Mesh(median, medianMat);
+        }
         medianAry[i].rotateX(THREE.Math.degToRad(-90));
         medianAry[i].translateX((MEDIAN_WIDTH / 2) * (2 * i) + (ROAD_WIDTH / 2) * (Math.pow(i, 2) + i));
         scene.add(medianAry[i]);
     }
 
     var totalArea1Length = MAX_LANES * MEDIAN_WIDTH + 6 * ROAD_WIDTH;
-
     var WALL_HEIGHT = 15;
     var wallLeftTex = THREE.ImageUtils.loadTexture("textures/tunnelLeft.png");
     wallLeftTex.repeat.set(1, 1);
@@ -237,12 +241,12 @@ require([], function(){
     scene.add(wallLeftMesh);
     scene.add(wallRightMesh);
 
-
     var origin = new THREE.AxisHelper(30);
     scene.add(origin);
 
     // create ball "william"
-    var ballTex = new THREE.ImageUtils.loadTexture("textures/basketball.jpg");
+    var ballSpeed = 0.05;
+    var ballTex = THREE.ImageUtils.loadTexture("textures/basketball.jpg");
     //var ballTexBump = new THREE.ImageUtils.loadTexture("texture/oldtennisballbump.jpg");
     var ball = new THREE.SphereGeometry(ballRad, 20, 20);
     var ballMat = new THREE.MeshPhongMaterial({map:ballTex});;
@@ -250,33 +254,62 @@ require([], function(){
     ballMesh.translateY(ballRad);
     ballMesh.direction = new THREE.Vector3(0, 0, 0);
     function ballRotate(controls){
-
+        ballMesh.rotateOnAxis(ballMesh.direction, THREE.Math.degToRad(20));
     }
+
+    // sets which way the ball rolls
     function setBallDirection(controls){
-        var x = controls.forward ? 0.05 : controls.back ? -0.05 : 0,
+        var x = controls.forward ? ballSpeed : controls.back ? -ballSpeed : 0,
             y = 0;
-            z = controls.right ? 0.05 : controls.left ? -0.05 : 0;
+            z = controls.right ? ballSpeed : controls.left ? -ballSpeed : 0;
         ballMesh.direction.set(x, y, z);
     }
 
+    // detects if the ball hits an object
     function ballCollide(){
+        // limits ball movement from going back too far
+        if(ballMesh.direction.x < 0 && ballMesh.position.x <= -5){
+            return true;
+        }
+        // limits ball movement to left wall
+        if(ballMesh.direction.z < 0 && ballMesh.position.z <= -75){
+            return true;
+        }
+        // limits ball movement to right wall
+        if(ballMesh.direction.z > 0 && ballMesh.position.z >= 75){
+            return true;
+        }
         return false;
     }
+
+    // moves the ball in each frame corresponding to its direction vector
     function moveBall(){
+        var xTrans, zTrans;
         if(ballMesh.direction.x !== 0 || ballMesh.direction.z !== 0){
-            //rotateBall();
             if(ballCollide()){
                 return false;
             }
             // move ball
-            ballMesh.position.x += ballMesh.direction.x * ((ballMesh.direction.z === 0) ? 4 : Math.sqrt(8));
-            ballMesh.position.z += ballMesh.direction.z * ((ballMesh.direction.x === 0) ? 4 : Math.sqrt(8));
+            xTrans = ballMesh.direction.x * ((ballMesh.direction.z === 0) ? 4 : Math.sqrt(8));
+            zTrans = ballMesh.direction.z * ((ballMesh.direction.x === 0) ? 4 : Math.sqrt(8));
+            ballMesh.position.x += xTrans;
+            ballMesh.position.z += zTrans;
+            cameraCF.multiply(new THREE.Matrix4().makeTranslation(xTrans, 0, zTrans));
+
+            if(ballMesh.direction.x == ballSpeed){
+                ballCF = new THREE.Matrix4().makeRotationZ(-ballSpeed / ballRad).multiply(ballCF);
+            }else if(ballMesh.direction.x == -ballSpeed){
+                ballCF = new THREE.Matrix4().makeRotationZ(ballSpeed / ballRad).multiply(ballCF);
+            }
+            if(ballMesh.direction.z == ballSpeed){
+                ballCF = new THREE.Matrix4().makeRotationX(ballSpeed / ballRad).multiply(ballCF);
+            }else if(ballMesh.direction.z == -ballSpeed){
+                ballCF = new THREE.Matrix4().makeRotationX(-ballSpeed / ballRad).multiply(ballCF);
+            }
             return true;
         }
     }
     scene.add(ballMesh);
-
-
 
     onRenderFcts.push(function(delta, now){
 		if(run){
@@ -307,7 +340,6 @@ require([], function(){
 
     });
 
-
     //////////////////////////////////////////////////////////////////////////////////
     //		Camera Controls							//
     //////////////////////////////////////////////////////////////////////////////////
@@ -317,13 +349,6 @@ require([], function(){
         mouse.y	= (event.clientY / window.innerHeight) - 0.5;
     }, false);
 
-    var MAX_SPEED = 0.3;
-    var SPEED_STEP = 0.05;
-    var intervalX;
-    var intervalZ;
-    var speed = 1.0;
-    var ballSpeedX = 0;
-    var ballSpeedZ = 0;
     var shift = false;  // if shift is being held or not
     var selected_obj = camera;
     var controls = {
@@ -345,31 +370,15 @@ require([], function(){
 				break;
             /**** use WADS for moving the ball ******/
             case 87:    // 'w' moves ball forward
-                //clearInterval(intervalX);
-                //if(ballSpeedX <= MAX_SPEED) {
-                //    ballSpeedX += SPEED_STEP;
-                //}
                 controls.forward = true;
                 break;
             case 83:    // 's' moves ball backward
-                //clearInterval(intervalX);
-                //if(ballSpeedX >= -MAX_SPEED){
-                //    ballSpeedX -= SPEED_STEP;
-                //}
                 controls.back = true;
                 break;
             case 65:    // 'a' moves ball left
-                //clearInterval(intervalZ);
-                //if(ballSpeedZ >= -MAX_SPEED){
-                //    ballSpeedZ -= SPEED_STEP;
-                //}
                 controls.left = true;
                 break;
             case 68:    // 'd' moves ball right
-                //clearInterval(intervalZ);
-                //if(ballSpeedZ <= MAX_SPEED) {
-                //    ballSpeedZ += SPEED_STEP;
-                //}
                 controls.right = true;
                 break;
             /* not used currently
@@ -380,7 +389,6 @@ require([], function(){
 
                 break;
             */
-
         }
         if (prevent) {
             event.preventDefault();
@@ -398,19 +406,15 @@ require([], function(){
                 break;
             // release any key to stop ball
             case 87:
-                //intervalX = setInterval(function(){decreaseBallSpeed("posx")}, 50);
                 controls.forward = false;
                 break;
             case 83:
-                //intervalX = setInterval(function(){decreaseBallSpeed("negx")}, 50);
                 controls.back = false;
                 break;
             case 65:
-                //intervalZ = setInterval(function(){decreaseBallSpeed("negz")}, 50);
                 controls.left = false;
                 break;
             case 68:
-                //intervalZ = setInterval(function(){decreaseBallSpeed("posz")}, 50);
                 controls.right = false;
                 break;
         }
@@ -422,51 +426,16 @@ require([], function(){
         setBallDirection(controls);
     }, false);
 
-    function decreaseBallSpeed(dir){
-        if(dir == "posx"){
-            if(ballSpeedX <= 0.1){
-                clearInterval(intervalX);
-                ballSpeedX = 0;
-                return;
-            }
-            ballSpeedX -= SPEED_STEP;
-        }else if(dir == "negx") {
-            if (ballSpeedX >= -0.1) {
-                clearInterval(intervalX);
-                ballSpeedX = 0;
-                return
-            }
-            ballSpeedX += SPEED_STEP;
-        }else if(dir == "negz"){
-            if(ballSpeedZ >= -0.1){
-                clearInterval(intervalZ);
-                ballSpeedZ = 0;
-                return;
-            }
-            ballSpeedZ += SPEED_STEP;
-        }else if(dir == "posz"){
-            if(ballSpeedZ <= 0.1){
-                clearInterval(intervalZ);
-                ballSpeedZ = 0;
-                return;
-            }
-            ballSpeedZ -= SPEED_STEP;
-        }
-    }
-
     onRenderFcts.push(function(delta, now){
         allCars[0]["cf"].decompose(tran, quat, vscale);
         allCars[0]["car"].position.copy(tran);
         allCars[0]["car"].quaternion.copy(quat);
-        console.log(ballMesh.direction);
 
         // responsible for ball and camera movement
         moveBall();
-        //ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeedX, 0, ballSpeedZ));
-        cameraCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeedX, 0, ballSpeedZ));
-        //ballCF.decompose(tran, quat, vscale);
+        ballCF.decompose(tran, quat, vscale);
         //ballMesh.position.copy(tran);
-        //ballMesh.quaternion.copy(quat);
+        ballMesh.quaternion.copy(quat);
         cameraCF.decompose(tran, quat, vscale);
         camera.position.copy(tran);
         camera.quaternion.copy(quat);
