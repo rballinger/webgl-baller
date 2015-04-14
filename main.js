@@ -242,11 +242,38 @@ require([], function(){
     scene.add(origin);
 
     // create ball "william"
-
+    var ballTex = new THREE.ImageUtils.loadTexture("textures/basketball.jpg");
+    //var ballTexBump = new THREE.ImageUtils.loadTexture("texture/oldtennisballbump.jpg");
     var ball = new THREE.SphereGeometry(ballRad, 20, 20);
-    var ballMat = new THREE.MeshPhongMaterial({color:0xFFFF00});
+    var ballMat = new THREE.MeshPhongMaterial({map:ballTex});;
     var ballMesh = new THREE.Mesh(ball, ballMat);
     ballMesh.translateY(ballRad);
+    ballMesh.direction = new THREE.Vector3(0, 0, 0);
+    function ballRotate(controls){
+
+    }
+    function setBallDirection(controls){
+        var x = controls.forward ? 0.05 : controls.back ? -0.05 : 0,
+            y = 0;
+            z = controls.right ? 0.05 : controls.left ? -0.05 : 0;
+        ballMesh.direction.set(x, y, z);
+    }
+
+    function ballCollide(){
+        return false;
+    }
+    function moveBall(){
+        if(ballMesh.direction.x !== 0 || ballMesh.direction.z !== 0){
+            //rotateBall();
+            if(ballCollide()){
+                return false;
+            }
+            // move ball
+            ballMesh.position.x += ballMesh.direction.x * ((ballMesh.direction.z === 0) ? 4 : Math.sqrt(8));
+            ballMesh.position.z += ballMesh.direction.z * ((ballMesh.direction.x === 0) ? 4 : Math.sqrt(8));
+            return true;
+        }
+    }
     scene.add(ballMesh);
 
 
@@ -299,7 +326,14 @@ require([], function(){
     var ballSpeedZ = 0;
     var shift = false;  // if shift is being held or not
     var selected_obj = camera;
+    var controls = {
+        forward: false,
+        back: false,
+        left: false,
+        right: false
+    };
     document.addEventListener('keydown', function(event){
+        var prevent = true;
         switch(event.which){
             /**** hold shift to rotate objects *****/
             case 16:    // hold shift to rotate objects
@@ -311,28 +345,32 @@ require([], function(){
 				break;
             /**** use WADS for moving the ball ******/
             case 87:    // 'w' moves ball forward
-                clearInterval(intervalX);
-                if(ballSpeedX <= MAX_SPEED) {
-                    ballSpeedX += SPEED_STEP;
-                }
+                //clearInterval(intervalX);
+                //if(ballSpeedX <= MAX_SPEED) {
+                //    ballSpeedX += SPEED_STEP;
+                //}
+                controls.forward = true;
                 break;
             case 83:    // 's' moves ball backward
-                clearInterval(intervalX);
-                if(ballSpeedX >= -MAX_SPEED){
-                    ballSpeedX -= SPEED_STEP;
-                }
+                //clearInterval(intervalX);
+                //if(ballSpeedX >= -MAX_SPEED){
+                //    ballSpeedX -= SPEED_STEP;
+                //}
+                controls.back = true;
                 break;
             case 65:    // 'a' moves ball left
-                clearInterval(intervalZ);
-                if(ballSpeedZ >= -MAX_SPEED){
-                    ballSpeedZ -= SPEED_STEP;
-                }
+                //clearInterval(intervalZ);
+                //if(ballSpeedZ >= -MAX_SPEED){
+                //    ballSpeedZ -= SPEED_STEP;
+                //}
+                controls.left = true;
                 break;
             case 68:    // 'd' moves ball right
-                clearInterval(intervalZ);
-                if(ballSpeedZ <= MAX_SPEED) {
-                    ballSpeedZ += SPEED_STEP;
-                }
+                //clearInterval(intervalZ);
+                //if(ballSpeedZ <= MAX_SPEED) {
+                //    ballSpeedZ += SPEED_STEP;
+                //}
+                controls.right = true;
                 break;
             /* not used currently
             case 69:    // 'e' rotates camera right
@@ -344,27 +382,44 @@ require([], function(){
             */
 
         }
+        if (prevent) {
+            event.preventDefault();
+        } else {
+            return;
+        }
+        setBallDirection(controls);
     }, false);
 
     document.addEventListener('keyup', function(event){
+        var prevent = true;
         switch(event.which) {
             case 16:    // release shift to go back to translating instead of rotating
                 shift = false;
                 break;
             // release any key to stop ball
             case 87:
-                intervalX = setInterval(function(){decreaseBallSpeed("posx")}, 50);
+                //intervalX = setInterval(function(){decreaseBallSpeed("posx")}, 50);
+                controls.forward = false;
                 break;
             case 83:
-                intervalX = setInterval(function(){decreaseBallSpeed("negx")}, 50);
+                //intervalX = setInterval(function(){decreaseBallSpeed("negx")}, 50);
+                controls.back = false;
                 break;
             case 65:
-                intervalZ = setInterval(function(){decreaseBallSpeed("negz")}, 50);
+                //intervalZ = setInterval(function(){decreaseBallSpeed("negz")}, 50);
+                controls.left = false;
                 break;
             case 68:
-                intervalZ = setInterval(function(){decreaseBallSpeed("posz")}, 50);
+                //intervalZ = setInterval(function(){decreaseBallSpeed("posz")}, 50);
+                controls.right = false;
                 break;
         }
+        if (prevent) {
+            event.preventDefault();
+        } else {
+            return;
+        }
+        setBallDirection(controls);
     }, false);
 
     function decreaseBallSpeed(dir){
@@ -403,13 +458,15 @@ require([], function(){
         allCars[0]["cf"].decompose(tran, quat, vscale);
         allCars[0]["car"].position.copy(tran);
         allCars[0]["car"].quaternion.copy(quat);
+        console.log(ballMesh.direction);
 
         // responsible for ball and camera movement
-        ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeedX, 0, ballSpeedZ));
+        moveBall();
+        //ballCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeedX, 0, ballSpeedZ));
         cameraCF.multiply(new THREE.Matrix4().makeTranslation(ballSpeedX, 0, ballSpeedZ));
-        ballCF.decompose(tran, quat, vscale);
-        ballMesh.position.copy(tran);
-        ballMesh.quaternion.copy(quat);
+        //ballCF.decompose(tran, quat, vscale);
+        //ballMesh.position.copy(tran);
+        //ballMesh.quaternion.copy(quat);
         cameraCF.decompose(tran, quat, vscale);
         camera.position.copy(tran);
         camera.quaternion.copy(quat);
