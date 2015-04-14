@@ -47,7 +47,7 @@ require([], function(){
 	// distance from 0,0,0 to either tunnel face
 	var tunnelEnd = 95;
 
-	var totalCars = 10;
+	var totalCars = 0;
 
     //////////////////////////////////////////////////////////////////////////////////
     //		lighting					//
@@ -190,6 +190,7 @@ require([], function(){
     var MEDIAN_WIDTH = 4;
     var roadAry = [];
     var medianAry = [];
+	var hold_i = 0;
     for(var i = 0; i < MAX_LANES; i++){
         var roadTex = THREE.ImageUtils.loadTexture("textures/road.png");
         roadTex.repeat.set(i + 1, 30);
@@ -212,13 +213,80 @@ require([], function(){
         }else{
             median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH, 150, 1, 5);
             medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
-            medianAry[i] = new THREE.Mesh(median, medianMat);
+            medianAry[i] = new THREE.Mesh(median,medianMat);
         }
         medianAry[i].rotateX(THREE.Math.degToRad(-90));
         medianAry[i].translateX((MEDIAN_WIDTH / 2) * (2 * i) + (ROAD_WIDTH / 2) * (Math.pow(i, 2) + i));
         scene.add(medianAry[i]);
+		hold_i = i;
     }
 
+    var median;
+	var medianMesh;
+    var medianMat;
+    median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH * 5, 150, 1, 5);
+    medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
+    medianMesh = new THREE.Mesh(median, medianMat);
+    medianMesh.translateX(-MEDIAN_WIDTH / 2 * 4, 0, 0);
+
+    medianMesh.rotateX(THREE.Math.degToRad(-90));
+    medianMesh.translateX((MEDIAN_WIDTH) * (2 * hold_i++) + (ROAD_WIDTH / 2) * (Math.pow(hold_i++, 2) + hold_i++) + MEDIAN_WIDTH + 1.0);
+	scene.add(medianMesh);
+
+
+	// street light with curb
+	/*var streetLight = new StreetLight();
+    streetLight.rotateY(THREE.Math.degToRad(90));
+    streetLight.position.set(0, 8, 10);
+	scene.add(streetLight);
+    // spotlight for streetlight
+    var streetLamp	= new THREE.SpotLight('white', 10, 40, Math.PI/4);
+    streetLamp.position.set(8, 22, 16);
+    streetLamp.target.position.set(8, 0, 16);
+    streetLamp.target.updateMatrixWorld();
+    scene.add( streetLamp );
+    var helper = new THREE.SpotLightHelper(streetLamp);
+    scene.add(helper);*/
+
+	var trees = [];
+	var treeLineSpacing = [-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60];
+	
+	for(var i = 0; i < treeLineSpacing.length; i++){
+
+		var holdTree = [];
+		
+		var tree = new Tree();
+
+		var cf = new THREE.Matrix4();
+		cf.makeTranslation(105, 0, treeLineSpacing[i]);
+		cf.decompose(tran, quat, vscale);
+
+		tree.position.copy(tran);
+		tree.quaternion.copy(quat);
+
+		holdTree["tree"] = tree;
+		holdTree["cf"] = cf;
+		
+		trees[i] = holdTree;
+
+		scene.add(trees[i]["tree"]);
+	}
+
+	// add hole positions
+	var holePositions = [[-30,0],[-15,0],[15,0],[30,0]];
+	var allHoles = [];
+
+	var holeGeo = new THREE.CylinderGeometry(1.1, 1.1, 0.0 ,32);
+    var holeMat = new THREE.MeshPhongMaterial({color: 0x000000});
+
+	for(var i = 0; i < holePositions.length; i++){	
+		var hole = new THREE.Mesh (holeGeo, holeMat);
+		hole.position.set(holePositions[i][1],0.0009,holePositions[i][0]);
+		allHoles[i] = hole;
+		scene.add(hole);
+	}
+
+	// add walls and tunnels
     var totalArea1Length = MAX_LANES * MEDIAN_WIDTH + 6 * ROAD_WIDTH;
     var WALL_HEIGHT = 15;
     var wallLeftTex = THREE.ImageUtils.loadTexture("textures/tunnelLeft.png");
@@ -265,8 +333,23 @@ require([], function(){
         ballMesh.direction.set(x, y, z);
     }
 
+	// detects if ball fell in hole
+	function ballFall(){
+		var radius = 0.64;
+		for(var i = 0; i < holePositions.length; i++){
+			if(Math.sqrt(Math.pow(Math.abs(ballMesh.position.z - holePositions[i][0]),2)+ 					Math.pow(Math.abs(ballMesh.position.x - holePositions[i][1]),2)) < radius){
+				return true;
+			}
+		}
+		return false;	
+	}
+
     // detects if the ball hits an object
     function ballCollide(){
+        // limits ball movement from going forward too far
+        if(ballMesh.direction.x > 0 && ballMesh.position.x >= 112){
+            return true;
+        }
         // limits ball movement from going back too far
         if(ballMesh.direction.x < 0 && ballMesh.position.x <= -5){
             return true;
@@ -286,7 +369,23 @@ require([], function(){
     function moveBall(){
         var xTrans, zTrans;
         if(ballMesh.direction.x !== 0 || ballMesh.direction.z !== 0){
-            if(ballCollide()){
+            if(ballFall()){
+				ballMesh.position.y -= 0.05;
+				if(ballMesh.position.y < -1){
+					alert("Win");	
+
+					var position = new THREE.Vector3();
+					position.getPositionFromMatrix( ballMesh.matrixWorld );
+										ballMesh.position.x = position.x;
+					ballMesh.position.y = position.y;
+					ballMesh.postionn.z = position.z;
+					xTrans = 0;
+					yTrans = 0;
+				}
+				return true;
+			}
+
+			if(ballCollide()){
                 return false;
             }
             // move ball
@@ -306,8 +405,8 @@ require([], function(){
             }else if(ballMesh.direction.z == -ballSpeed){
                 ballCF = new THREE.Matrix4().makeRotationX(-ballSpeed / ballRad).multiply(ballCF);
             }
-            return true;
         }
+		return true;
     }
     scene.add(ballMesh);
 
@@ -337,7 +436,6 @@ require([], function(){
 				}
 			}
 		}
-
     });
 
     //////////////////////////////////////////////////////////////////////////////////
@@ -427,19 +525,19 @@ require([], function(){
     }, false);
 
     onRenderFcts.push(function(delta, now){
-        allCars[0]["cf"].decompose(tran, quat, vscale);
+        /*allCars[0]["cf"].decompose(tran, quat, vscale);
         allCars[0]["car"].position.copy(tran);
-        allCars[0]["car"].quaternion.copy(quat);
+        allCars[0]["car"].quaternion.copy(quat);*/
 
         // responsible for ball and camera movement
-        moveBall();
-        ballCF.decompose(tran, quat, vscale);
-        //ballMesh.position.copy(tran);
-        ballMesh.quaternion.copy(quat);
-        cameraCF.decompose(tran, quat, vscale);
-        camera.position.copy(tran);
-        camera.quaternion.copy(quat);
-        camera.lookAt(ballMesh.position);
+        if(moveBall()){
+        	ballCF.decompose(tran, quat, vscale);
+        	ballMesh.quaternion.copy(quat);
+        	cameraCF.decompose(tran, quat, vscale);
+        	camera.position.copy(tran);
+        	camera.quaternion.copy(quat);
+        	camera.lookAt(ballMesh.position);
+		}
 
 
         /*allCars[0]["lightR_cf"] = new THREE.Matrix4().copy(allCars[0]["cf"]);
