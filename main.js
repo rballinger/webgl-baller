@@ -272,11 +272,11 @@ require([], function(){
             return true;
         }
         // limits ball movement to left wall
-        if(ballMesh.direction.z < 0 && ballMesh.position.z <= -75){
+        if(ballMesh.direction.z < 0 && ballMesh.position.z <= -60){
             return true;
         }
         // limits ball movement to right wall
-        if(ballMesh.direction.z > 0 && ballMesh.position.z >= 75){
+        if(ballMesh.direction.z > 0 && ballMesh.position.z >= 60){
             return true;
         }
         return false;
