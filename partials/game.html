@@ -1,7 +1,21 @@
+<style>
+    #lives {
+        width:100%;
+        height:auto;
+        position:absolute;
+        bottom:20px;
+        left:0;
+        background:transparent;
+        text-align:right;
+    }
+</style>
 <div id="cs-legend">
     (for our reference: Into page: +x | Right: +z | Up: +y) ||| Use WADS to move the ball to the other end to score.
 </div>
 <div id="graphicsbox"></div>
 <div id="lives">
-
+    <span style="font-size:24px">LIVES:</span>
+    <span ng-repeat="i in getNumber(lives) track by $index">
+        <img src="images/life.png">
+    </span>
 </div>

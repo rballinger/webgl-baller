@@ -11,6 +11,11 @@ app.config(function($routeProvider){
 });
 
 app.controller("GameController", ["$scope", "$window", function($scope, $window){
+    // scope variables
+    $scope.lives = 3;
+    $scope.getNumber = function(num){
+        return new Array(num);
+    }
     require([], function(){
         // detect WebGL
         if( !Detector.webgl ){
@@ -464,8 +469,10 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
             if(ballMesh.direction.x !== 0 || ballMesh.direction.z !== 0){
                 if(ballFall()){
                     ballMesh.position.y -= 0.05;
-                    if(ballMesh.position.y < -1){
-                        alert("Win");
+                    if(ballMesh.position.y < -0.5){
+
+                        //alert("Win");
+                        location.reload(false);
 
                         var position = new THREE.Vector3();
                         position.getPositionFromMatrix( ballMesh.matrixWorld );
