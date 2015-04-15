@@ -13,6 +13,7 @@ app.config(function($routeProvider){
 app.controller("GameController", ["$scope", "$window", function($scope, $window){
     // scope variables
     $scope.lives = 3;
+	$scope.holesLeft = 4;
     $scope.getNumber = function(num){
         return new Array(num);
     }
@@ -285,19 +286,11 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         var allHoles = [];
 		var holePositions = [];
 
-		// check if allHoles is stored and non-zero length
-		if(typeof sessionStorage['holePositions'] == 'undefined' || JSON.parse(sessionStorage['holePositions']).length == 0){
-			holePositions = [[-30,0],[-15,0],[15,0],[30,0]];
-			sessionStorage[ 'holePositions' ] = JSON.stringify(holePositions);
-		}else{
-			// found in local storage
-			holePositions = JSON.parse(sessionStorage['holePositions']);
-		}
+		setUpHoles();
 
-		// check if allHoles is stored and non-zero length
-		if(typeof sessionStorage['allHoles'] == 'undefined' || JSON.parse(sessionStorage['allHoles']).length == 0){
-			allHoles = [];
+		function setUpHoles(){
 
+			holePositions = [[-30,100],[-15,100],[15,100],[30,100]];
 			var holeGeo = new THREE.CylinderGeometry(1.1, 1.1, 0.0 ,32);
 			var holeMat = new THREE.MeshPhongMaterial({color: 0x000000});
 
@@ -305,20 +298,6 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
 			    var hole = new THREE.Mesh (holeGeo, holeMat);
 			    hole.position.set(holePositions[i][1],0.0009,holePositions[i][0]);
 			    allHoles[i] = hole;
-				scene.add(hole);
-			}
-			if(typeof sessionStorage['allHoles'] != 'undefined' && JSON.parse(sessionStorage['allHoles']).length == 0){
-				alert("Winner");
-			}
-			sessionStorage[ 'allHoles' ] = JSON.stringify(allHoles);
-		}else{
-			// found in local storage
-			allHoles = JSON.parse(sessionStorage['allHoles']);
-			var holeGeo = new THREE.CylinderGeometry(1.1, 1.1, 0.0 ,32);
-			var holeMat = new THREE.MeshPhongMaterial({color: 0x000000});
-			for(var i = 0; i < holePositions.length; i++){
-			    var hole = new THREE.Mesh (holeGeo, holeMat);
-			    hole.position.set(holePositions[i][1],0.0009,holePositions[i][0]);
 				scene.add(hole);
 			}
 		}
@@ -387,7 +366,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
                         alert("You've been squished!");
                         setTimeout(function(){
                             scene.remove(ballFlatMesh);
-                            var ballCF = new THREE.Matrix4();
+                            ballCF = new THREE.Matrix4();
                             ballCF.multiply(new THREE.Matrix4().makeTranslation(0, ballRad, 0));
                             ballCF.decompose(tran, quat, vscale);
                             ballMesh.position.copy(tran);
@@ -400,7 +379,8 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
                             $scope.$apply();
                             if($scope.lives <= 0){
                                 alert("That was your last ball. You lose!");
-                                setTimeout(function(){location.reload(false);}, 500);
+								$scope.lives = 3;
+								$scope.apply();
                             }
                             messageDisplayed = false;
                         }, 500);
@@ -446,14 +426,6 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
                 }
             }
         }
-
-        /*
-         var testBox = new THREE.BoxGeometry(3, 4, 5, 1, 1, 1);
-         var testBoxMat = new THREE.MeshPhongMaterial({color:0xffff00});
-         var testBoxMesh = new THREE.Mesh(testBox, testBoxMat);
-         testBoxMesh.position.set(10, 2, 1);
-         scene.add(testBoxMesh);
-         */
 
         // add all scene obstacles
         var sceneObstacles = [];
@@ -516,23 +488,41 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
             //yTrans += -ballSpeed;
             checkBallCollision();
             yTrans += ballMesh.direction.y;
+
+			var holeIndex = ballFall(); 
+          
+			if(holeIndex > -1){
+                ballMesh.position.y -= 0.05;
+                if(ballMesh.position.y < -0.5){
+					scene.remove(allHoles[holeIndex]);  // remove the hole
+					allHoles.splice(holeIndex,1);
+					holePositions.splice(holeIndex, 1);
+					$scope.holesLeft--;
+					$scope.$apply();
+                    scene.remove(ballFlatMesh);
+                    ballCF = new THREE.Matrix4();
+                    ballCF.multiply(new THREE.Matrix4().makeTranslation(0, ballRad, 0));
+                    ballCF.decompose(tran, quat, vscale);
+                    ballMesh.position.copy(tran);
+                    ballMesh.quaternion.copy(quat);
+                    scene.add(ballMesh);
+                    cameraCF = new THREE.Matrix4();
+                    cameraCF.multiply(ballCF);
+                    cameraCF.multiply(new THREE.Matrix4().makeTranslation(-15, 4, 0));
+
+					if(allHoles.length == 0){
+						alert("You Won!");
+						// reset holes
+						setUpHoles();	
+						$scope.holesLeft = 4;
+						$scope.$apply();
+					}
+                }
+                return true;
+            }
             if(ballMesh.direction.x !== 0 || ballMesh.direction.z !== 0){
 
-				var holeIndex = ballFall(); 
-          
-				if(holeIndex > -1){
-                    ballMesh.position.y -= 0.05;
-                    if(ballMesh.position.y < -0.5){
-						scene.remove(allHoles[holeIndex]);  // remove the hole
-						allHoles.splice(holeIndex,1);
-						holePositions.splice(holeIndex, 1);
-
-						sessionStorage[ 'allHoles' ] = JSON.stringify(allHoles);
-						sessionStorage[ 'holePositions' ] = JSON.stringify(holePositions);
-                        location.reload(false);
-                    }
-                    return true;
-                }
+	
 
                 checkBallCollision();
                 if(ballLimitCollide()){
@@ -679,9 +669,6 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         }, false);
 
         onRenderFcts.push(function(delta, now){
-            /*allCars[0]["cf"].decompose(tran, quat, vscale);
-             allCars[0]["car"].position.copy(tran);
-             allCars[0]["car"].quaternion.copy(quat);*/
 
             // responsible for ball and camera movement
             if(moveBall()){
@@ -692,20 +679,6 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
                 camera.quaternion.copy(quat);
                 camera.lookAt(ballMesh.position);
             }
-
-
-
-            /*allCars[0]["lightR_cf"] = new THREE.Matrix4().copy(allCars[0]["cf"]);
-             allCars[0]["lightR_cf"].multiply(new THREE.Matrix4().makeTranslation(1.7, 0, (allCars[0]["car"].offGround + allCars[0]["car"].chassisHeight - 0.5) * 3.5));
-             allCars[0]["lightR_cf"].decompose(tran, quat, vscale);
-             allCars[0]["lightR"].position.copy(tran);
-             allCars[0]["lightR"].quaternion.copy(quat);
-
-             allCars[0]["lightL_cf"] = new THREE.Matrix4().copy(allCars[0]["lightR_cf"]);
-             allCars[0]["lightL_cf"].multiply(new THREE.Matrix4().makeTranslation((allCars[0].chassisWidth - 1)*3.5, 0, 0))
-             allCars[0]["lightL_cf"].decompose(tran, quat, vscale);
-             allCars[0]["lightL"].position.copy(tran);
-             allCars[0]["lightL"].quaternion.copy(quat);*/
         });
 
         //////////////////////////////////////////////////////////////////////////////////
