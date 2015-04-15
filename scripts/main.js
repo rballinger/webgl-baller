@@ -16,6 +16,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
     $scope.getNumber = function(num){
         return new Array(num);
     }
+
     require([], function(){
         // detect WebGL
         if( !Detector.webgl ){
@@ -67,8 +68,8 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         var backLight	= new THREE.DirectionalLight('white', 2.0);
         backLight.position.set(100, 50, -150);
         scene.add( backLight );
-        var helper2 = new THREE.DirectionalLightHelper(backLight, 20);
-        scene.add(helper2);
+        //var helper2 = new THREE.DirectionalLightHelper(backLight, 20);
+        //scene.add(helper2);
 
         //////////////////////////////////////////////////////////////////////////////////
         //		add an object and make it move					//
@@ -242,7 +243,6 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         medianMesh.translateX((MEDIAN_WIDTH) * (2 * hold_i++) + (ROAD_WIDTH / 2) * (Math.pow(hold_i++, 2) + hold_i++) + MEDIAN_WIDTH + 1.0);
         scene.add(medianMesh);
 
-
         // street light with curb
         /*var streetLight = new StreetLight();
          streetLight.rotateY(THREE.Math.degToRad(90));
@@ -346,8 +346,8 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         scene.add(wallLeftMesh);
         scene.add(wallRightMesh);
 
-        var origin = new THREE.AxisHelper(30);
-        scene.add(origin);
+        //var origin = new THREE.AxisHelper(30);
+        //scene.add(origin);
 
         // create ball "william"
         var ballSpeed = 0.05;
@@ -382,9 +382,30 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         function ranOver(){
             if(!messageDisplayed){
                 messageDisplayed = true;
-                setTimeout(function(){alert("You've been squished!");}, 500);
+                setTimeout(
+                    function(){
+                        alert("You've been squished!");
+                        setTimeout(function(){
+                            scene.remove(ballFlatMesh);
+                            var ballCF = new THREE.Matrix4();
+                            ballCF.multiply(new THREE.Matrix4().makeTranslation(0, ballRad, 0));
+                            ballCF.decompose(tran, quat, vscale);
+                            ballMesh.position.copy(tran);
+                            ballMesh.quaternion.copy(quat);
+                            scene.add(ballMesh);
+                            cameraCF = new THREE.Matrix4();
+                            cameraCF.multiply(ballCF);
+                            cameraCF.multiply(new THREE.Matrix4().makeTranslation(-15, 4, 0));
+                            $scope.lives--;
+                            $scope.$apply();
+                            if($scope.lives <= 0){
+                                alert("That was your last ball. You lose!");
+                                setTimeout(function(){location.reload(false);}, 500);
+                            }
+                            messageDisplayed = false;
+                        }, 500);
+                    }, 500);
             }
-            setTimeout(function(){location.reload(false);}, 3000);
         }
 
         function checkBallCollision() {
@@ -496,6 +517,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
             checkBallCollision();
             yTrans += ballMesh.direction.y;
             if(ballMesh.direction.x !== 0 || ballMesh.direction.z !== 0){
+
 				var holeIndex = ballFall(); 
           
 				if(holeIndex > -1){
