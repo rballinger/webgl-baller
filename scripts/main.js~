@@ -308,6 +308,30 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
 				scene.add(hole);
 			}
 			if(typeof sessionStorage['allHoles'] != 'undefined' && JSON.parse(sessionStorage['allHoles']).length == 0){
+					
+
+           var toastyTex = THREE.ImageUtils.loadTexture("textures/toasty.jpg");
+            toastyTex.repeat.set(1, 1);
+            toastyTex.wrapS = THREE.RepeatWrapping;
+            toastyTex.wrapT = THREE.RepeatWrapping;
+            var toast = new THREE.PlaneBufferGeometry(2,2,0);
+            var toastMat = new THREE.MeshPhongMaterial({map:toastyTex});
+
+ 			var toastMesh = new THREE.Mesh(toast, toastMat);
+toastMesh.material.needsUpdate = true;
+
+toastMesh.position.set(camera.position.x-10,camera.position.y+2,camera.position.z+2.45);
+toastMesh.rotateY(THREE.Math.degToRad(-90));
+toastMesh.rotateX(THREE.Math.degToRad(-20));
+
+
+			scene.add(toastMesh);
+
+  var date = new Date();
+  var curDate = null;
+  do { curDate = new Date(); }
+  while(curDate-date < 2000);
+
 				alert("Winner");
 			}
 			sessionStorage[ 'allHoles' ] = JSON.stringify(allHoles);

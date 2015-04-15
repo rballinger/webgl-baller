@@ -1,41 +1,94 @@
 <!DOCTYPE html>
-<head>
+<html ng-app="gameApp">
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular-route.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 
-    <title>Project 3 - WebGL</title>
-    <script src='bower_components/threejs/build/three.js'></script>
-    <script src="vendor/require.js/require.js"></script>
-    <script src="vendor/three.js/examples/js/Detector.js"></script>
-    <script src="vendor/threex.windowresize.js"></script>
-    <script src="Models/Car.js"></script>
-    <script src="Models/Wheel.js"></script>
-    <script src="Models/Ground.js"></script>
-    <script src="Models/StreetLight.js"></script>
-    <script src="Models/UFO.js"></script>
-	<script src="Models/Tree.js"></script>
-    <style>
-        #cs-legend{
-            position:absolute;
-            width:100px;
-            height:100px;
-            z-index:999;
-        }
-        .x{
-            color:blue;
-        }
-        .y{
-            color:red;
-        }
-        .z{
-            color:green;
-        }
+        <script type="text/javascript" src="scripts/main.js"></script>
+        <script src='bower_components/threejs/build/three.js'></script>
+        <script src="vendor/require.js/require.js"></script>
+        <script src="vendor/three.js/examples/js/Detector.js"></script>
+        <script src="vendor/threex.windowresize.js"></script>
+        <script src="Models/Car.js"></script>
+        <script src="Models/Wheel.js"></script>
+        <script src="Models/Ground.js"></script>
+        <script src="Models/StreetLight.js"></script>
+        <script src="Models/UFO.js"></script>
+        <script src="Models/Tree.js"></script>
+        <title>Baller</title>
+        <style>
+            #cs-legend{
+                text-align:center;
+                position:absolute;
+                left:0px;
+                top:0px;
+                width:100%;
+                height:auto;
+                z-index:999;
+                background-color:#bbbbbb;
+            }
+            .x{
+                color:blue;
+            }
+            .y{
+                color:red;
+            }
+            .z{
+                color:green;
+            }
+            body{
+                background-color: #bbbbbb;
+                overflow: hidden;
+            }
+            #footer {
+                width:100%;
+                height:auto;
+                position:absolute;
+                bottom:0;
+                left:0;
+                background-color:#bbbbbb;
+                text-align:center;
+            }
+            .box{
+                width: 800px;
+                margin:auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container" ng-view>
+            <!-- Partials insert here -->
+        </div>
 
-    </style>
+		<img id="plane" src="./textures/toasty.jpg" />
+		<script>
+			$(function() {
+				var img = $("#plane"),
+					width = img.get(0).width,
+					screenWidth = $(window).width(),
+					duration = 5000;
 
-</head>
-<body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'>
-    <div>
-        Into page: +x | Right: +z | Up: +y
-    </div>
-    <script src="main.js"></script>
-<div id="graphicsbox"></div>
-</body>
+				function animatePlane() {
+					img.css("left", -width)
+					   .animate({
+						    "left": screenWidth
+						}, duration, animatePlane);
+				}
+
+				animatePlane();
+			});​
+		</script>
+        <div id="footer">
+            <div class="box">
+                2015 Baller. Created by Ryan Ballinger and Dan Berridge.
+            </div>
+        </div>
+    </body>
+
+</html>
