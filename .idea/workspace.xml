@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="530fcfb8-0da4-44a8-8d1a-85590514d5e1" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/partials/game.html" afterPath="$PROJECT_DIR$/partials/game.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scripts/main.js" afterPath="$PROJECT_DIR$/scripts/main.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -31,7 +30,7 @@
       <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.1153846" vertical-offset="742" max-vertical-offset="1360">
+            <state vertical-scroll-proportion="-1.5384616" vertical-offset="861" max-vertical-offset="1360">
               <caret line="53" column="23" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
               <folding />
             </state>
@@ -41,8 +40,8 @@
       <file leaf-file-name="main.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/scripts/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.077419356" vertical-offset="8005" max-vertical-offset="11815">
-              <caret line="473" column="26" selection-start-line="473" selection-start-column="26" selection-end-line="473" selection-end-column="26" />
+            <state vertical-scroll-proportion="0.36989248" vertical-offset="8226" max-vertical-offset="12172">
+              <caret line="494" column="47" selection-start-line="494" selection-start-column="47" selection-end-line="494" selection-end-column="47" />
               <folding />
             </state>
           </provider>
@@ -51,8 +50,8 @@
       <file leaf-file-name="game.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/partials/game.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-5.230769" vertical-offset="0" max-vertical-offset="442">
-              <caret line="8" column="25" selection-start-line="8" selection-start-column="25" selection-end-line="8" selection-end-column="25" />
+            <state vertical-scroll-proportion="-5.8846154" vertical-offset="0" max-vertical-offset="442">
+              <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
               <folding>
                 <element signature="n#style#0;n#span#0;n#div#2;n#!!top" expanded="true" />
               </folding>
@@ -697,7 +696,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.1153846" vertical-offset="742" max-vertical-offset="1360">
+        <state vertical-scroll-proportion="-1.5384616" vertical-offset="861" max-vertical-offset="1360">
           <caret line="53" column="23" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
           <folding />
         </state>
@@ -705,8 +704,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/partials/game.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-5.230769" vertical-offset="0" max-vertical-offset="442">
-          <caret line="8" column="25" selection-start-line="8" selection-start-column="25" selection-end-line="8" selection-end-column="25" />
+        <state vertical-scroll-proportion="-5.8846154" vertical-offset="0" max-vertical-offset="442">
+          <caret line="9" column="5" selection-start-line="9" selection-start-column="5" selection-end-line="9" selection-end-column="5" />
           <folding>
             <element signature="n#style#0;n#span#0;n#div#2;n#!!top" expanded="true" />
           </folding>
@@ -715,8 +714,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scripts/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.077419356" vertical-offset="8005" max-vertical-offset="11815">
-          <caret line="473" column="26" selection-start-line="473" selection-start-column="26" selection-end-line="473" selection-end-column="26" />
+        <state vertical-scroll-proportion="0.36989248" vertical-offset="8226" max-vertical-offset="12172">
+          <caret line="494" column="47" selection-start-line="494" selection-start-column="47" selection-end-line="494" selection-end-column="47" />
           <folding />
         </state>
       </provider>
