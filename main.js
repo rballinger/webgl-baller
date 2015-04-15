@@ -399,6 +399,7 @@ require([], function(){
 
     // add all scene obstacles
     var sceneObstacles = [];
+    sceneObstacles.push(medianMesh);
     //sceneObstacles.push(testBoxMesh);
     for(var i = 0; i < roadAry.length; i++){
         sceneObstacles.push(roadAry[i]);
