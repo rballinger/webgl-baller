@@ -47,7 +47,7 @@ require([], function(){
 	// distance from 0,0,0 to either tunnel face
 	var tunnelEnd = 95;
 
-	var totalCars = 0;
+	var totalCars = 4;
 
     //////////////////////////////////////////////////////////////////////////////////
     //		lighting					//
@@ -141,11 +141,11 @@ require([], function(){
 		var car_cf = new THREE.Matrix4();
 		
 		if(direction == "left"){
-			car_cf.makeTranslation(lane, 0, -120);
+			car_cf.makeTranslation(lane, 0.25, -120);
 			car_cf.multiply(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(90)));
 			car_cf.multiply(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(180)));
 		}else{
-			car_cf.makeTranslation(lane, 0, -120);
+			car_cf.makeTranslation(lane, 0.25, -120);
 			car_cf.multiply(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(-90)));
 		}
 		car_cf.decompose(tran, quat, vscale);
@@ -316,15 +316,17 @@ require([], function(){
     var ballSpeed = 0.05;
     var gravity = 2;
     var ballTex = THREE.ImageUtils.loadTexture("textures/basketball.jpg");
+    var ballFlatTex = THREE.ImageUtils.loadTexture("textures/flatbasketball.jpg");
     //var ballTexBump = new THREE.ImageUtils.loadTexture("texture/oldtennisballbump.jpg");
     var ball = new THREE.SphereGeometry(ballRad, 20, 20);
     var ballMat = new THREE.MeshPhongMaterial({map:ballTex});;
     var ballMesh = new THREE.Mesh(ball, ballMat);
+    var ballFlat = new THREE.CylinderGeometry(ballRad, ballRad, 0.05, 10, 10);
+    var ballFlatMat = new THREE.MeshPhongMaterial({map:ballFlatTex});
+    var ballFlatMesh = new THREE.Mesh(ballFlat, ballFlatMat);
     ballMesh.translateY(ballRad);
     ballMesh.direction = new THREE.Vector3(0, 0, 0);
     // set all possible directions of movement
-    var hypotenuseRad = ballRad * Math.sqrt(2) / 2;
-    console.log(hypotenuseRad);
     ballMesh.rays = [
         new THREE.Vector3(0, 0, 1),
         new THREE.Vector3(1, 0, 1),
@@ -339,8 +341,16 @@ require([], function(){
     // add raycaster to test for intersections
     ballMesh.caster = new THREE.Raycaster();
 
+    var messageDisplayed = false;
+    function ranOver(){
+        if(!messageDisplayed){
+            messageDisplayed = true;
+            setTimeout(function(){alert("You've been squished!");}, 500);
+        }
+        setTimeout(function(){location.reload(false);}, 3000);
+    }
+
     function checkBallCollision() {
-        console.log("checking for collisions...");
         var collisions;
         var distance = 0.6;
         for (var i = 0; i < ballMesh.rays.length; i++) {
@@ -349,8 +359,17 @@ require([], function(){
             collisions = ballMesh.caster.intersectObjects(sceneObstacles);
 
             if (collisions.length > 0 && collisions[0].distance <= distance) {
-                console.log("COLLIDED!");
-                console.log("*" + i + "*\n");
+                if(i != 8){
+                    console.log("HIT!");
+                    if(collisions.length == 1){
+                        ranOver();
+                        scene.remove(ballMesh);
+                        ballFlatMesh.position.copy(ballMesh.position);
+                        ballFlatMesh.position.y = 0.025;
+                        scene.add(ballFlatMesh);
+                    }
+                }
+
                 if (i === 0 && ballMesh.direction.z === ballSpeed) {
                     ballMesh.direction.setZ(0);
                 } else if (i === 4 && ballMesh.direction.z === -ballSpeed) {
@@ -370,20 +389,25 @@ require([], function(){
         }
     }
 
+    /*
     var testBox = new THREE.BoxGeometry(3, 4, 5, 1, 1, 1);
     var testBoxMat = new THREE.MeshPhongMaterial({color:0xffff00});
     var testBoxMesh = new THREE.Mesh(testBox, testBoxMat);
     testBoxMesh.position.set(10, 2, 1);
     scene.add(testBoxMesh);
+    */
 
     // add all scene obstacles
     var sceneObstacles = [];
-    sceneObstacles.push(testBoxMesh);
+    //sceneObstacles.push(testBoxMesh);
     for(var i = 0; i < roadAry.length; i++){
         sceneObstacles.push(roadAry[i]);
     }
     for(var i = 0; i < medianAry.length; i++) {
         sceneObstacles.push(medianAry[i]);
+    }
+    for(var i = 0; i < allCars.length; i++){
+        sceneObstacles.push(allCars[i]["car"].boxCollider);
     }
 
     // sets which way the ball rolls
@@ -398,7 +422,8 @@ require([], function(){
 	function ballFall(){
 		var radius = 0.64;
 		for(var i = 0; i < holePositions.length; i++){
-			if(Math.sqrt(Math.pow(Math.abs(ballMesh.position.z - holePositions[i][0]),2)+ 					Math.pow(Math.abs(ballMesh.position.x - holePositions[i][1]),2)) < radius){
+			if(Math.sqrt(Math.pow(Math.abs(ballMesh.position.z - holePositions[i][0]),2)+
+                Math.pow(Math.abs(ballMesh.position.x - holePositions[i][1]),2)) < radius){
 				return true;
 			}
 		}
@@ -454,7 +479,6 @@ require([], function(){
             //}
             checkBallCollision();
             // move ball
-            console.log(ballMesh.direction);
             xTrans = ballMesh.direction.x * ((ballMesh.direction.z === 0) ? 4 : Math.sqrt(8));
             zTrans = ballMesh.direction.z * ((ballMesh.direction.x === 0) ? 4 : Math.sqrt(8));
 
@@ -474,7 +498,6 @@ require([], function(){
                 ballCF = new THREE.Matrix4().makeRotationX(-ballSpeed / ballRad).multiply(ballCF);
             }
         }
-        console.log(ballMesh.position);
         ballMesh.position.y += yTrans;
 		return true;
     }
@@ -485,6 +508,7 @@ require([], function(){
 			for(var i = 0; i < totalCars; i++){
 				allCars[i]["cf"].multiply(new THREE.Matrix4().makeTranslation(0, -allCars[i]["speed"], 0));
 				allCars[i]["cf"].decompose(tran, quat, vscale);
+				allCars[i]["car"].position.copy(tran);
 				allCars[i]["car"].position.copy(tran);
 				allCars[i]["car"].quaternion.copy(quat);
 

@@ -3,6 +3,7 @@
  */
 
 var Car = function () {
+
     var CHASSIS_LEN = 10;
     var CHASSIS_WIDTH = 4;
     var CHASSIS_HEIGHT = 1.5;
@@ -204,7 +205,7 @@ var Car = function () {
     geometry.computeBoundingSphere();
 
 	var colors = [0x00CC00,0x0000ff,0xFF3300,0xCC00CC];
-	var rand = Math.random() * (colors.length - 1 - 0) + 0;
+	var rand = Math.random() * (colors.length - 1);
 	var color = colors[Math.floor(rand)];
 
     var carMat = new THREE.MeshPhongMaterial({color: color});
@@ -252,6 +253,13 @@ var Car = function () {
     carGroup.add(tireRL);
     carGroup.add(headlightR);
     carGroup.add(headlightL);
+
+    var BoxCollider = new THREE.BoxGeometry(CHASSIS_WIDTH, CHASSIS_LEN, CHASSIS_HEIGHT + OFF_GROUND + ROOF);
+    var BoxColliderMat = new THREE.MeshPhongMaterial({color:0xFFFFFF, transparent: true, opacity: 0.0});
+    var BoxColliderMesh = new THREE.Mesh(BoxCollider, BoxColliderMat);
+    BoxColliderMesh.position.set(CHASSIS_WIDTH / 2, CHASSIS_LEN / 2, (CHASSIS_HEIGHT + OFF_GROUND + ROOF) / 2);
+    carGroup.add(BoxColliderMesh);
+    carGroup.boxCollider = BoxColliderMesh;
 
     carGroup.rotateTires = function(dis){
         tireFR.rotateY(-dis / 1.25);
