@@ -8,12 +8,19 @@ app.config(function($routeProvider){
     $routeProvider.
         when('/', {templateUrl:'partials/game.html', controller:'GameController'}).
         otherwise({redirectTo: '/'});
-});
 
+});
+app.config(function($routeProvider){
+    $routeProvider.
+        when('/', {templateUrl:'shaderScripts/streetLightShader.html', controller:'GameController'}).
+        otherwise({redirectTo: '/'});
+
+});
 app.controller("GameController", ["$scope", "$window", function($scope, $window){
     // scope variables
     $scope.lives = 3;
 	$scope.holesLeft = 4;
+
     $scope.getNumber = function(num){
         return new Array(num);
     }
@@ -167,26 +174,9 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
             car.scale.set(1,1,1);
             scene.add(car);
 
-            // headlight coord frames
-            /*var lightR_cf;
-             var lightL_cf;
-             // add headlights
-             var lightR = new THREE.SpotLight('white', 10, 200, Math.PI/12, 1);
-             lightR.target.position.set(0, -300, 1000*changeDir);
-             lightR.target.updateMatrixWorld();
-             var lightL = new THREE.SpotLight('white', 10, 200, Math.PI/12, 1);
-             lightL.target.position.set(0, -300, 1000*changeDir);
-             lightL.target.updateMatrixWorld();
-             scene.add(lightR);
-             scene.add(lightL);*/
-
             var totalCar = [];
 
             totalCar["car"] = car;
-            /*totalCar["lightL"] = lightL;
-             totalCar["lightR"] = lightR;
-             totalCar["lightR_cf"] = lightR_cf;
-             totalCar["lightL_cf"] = lightL_cf;*/
             totalCar["cf"] = car_cf;
             totalCar["speed"] = speed;
             totalCar["direction"] = direction;
@@ -244,19 +234,19 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         medianMesh.translateX((MEDIAN_WIDTH) * (2 * hold_i++) + (ROAD_WIDTH / 2) * (Math.pow(hold_i++, 2) + hold_i++) + MEDIAN_WIDTH + 1.0);
         scene.add(medianMesh);
 
-        // street light with curb
-        /*var streetLight = new StreetLight();
+        // street light
+        var streetLight = new StreetLight();
          streetLight.rotateY(THREE.Math.degToRad(90));
          streetLight.position.set(0, 8, 10);
          scene.add(streetLight);
          // spotlight for streetlight
          var streetLamp	= new THREE.SpotLight('white', 10, 40, Math.PI/4);
-         streetLamp.position.set(8, 22, 16);
+         //streetLamp.position.set(8, 22, 16);
          streetLamp.target.position.set(8, 0, 16);
          streetLamp.target.updateMatrixWorld();
          scene.add( streetLamp );
          var helper = new THREE.SpotLightHelper(streetLamp);
-         scene.add(helper);*/
+         scene.add(helper);
 
         var trees = [];
         var treeLineSpacing = [-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60];
@@ -268,7 +258,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
             var tree = new Tree();
 
             var cf = new THREE.Matrix4();
-            cf.makeTranslation(105, 0, treeLineSpacing[i]);
+            cf.makeTranslation(/*105*/ 5, 0, treeLineSpacing[i]);
             cf.decompose(tran, quat, vscale);
 
             tree.position.copy(tran);

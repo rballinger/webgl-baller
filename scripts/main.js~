@@ -8,12 +8,19 @@ app.config(function($routeProvider){
     $routeProvider.
         when('/', {templateUrl:'partials/game.html', controller:'GameController'}).
         otherwise({redirectTo: '/'});
-});
 
+});
+app.config(function($routeProvider){
+    $routeProvider.
+        when('/', {templateUrl:'shaderScripts/streetLightShader.html', controller:'GameController'}).
+        otherwise({redirectTo: '/'});
+
+});
 app.controller("GameController", ["$scope", "$window", function($scope, $window){
     // scope variables
     $scope.lives = 3;
 	$scope.holesLeft = 4;
+
     $scope.getNumber = function(num){
         return new Array(num);
     }
@@ -268,7 +275,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
             var tree = new Tree();
 
             var cf = new THREE.Matrix4();
-            cf.makeTranslation(105, 0, treeLineSpacing[i]);
+            cf.makeTranslation(/*105*/ 5, 0, treeLineSpacing[i]);
             cf.decompose(tran, quat, vscale);
 
             tree.position.copy(tran);
@@ -290,7 +297,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
 
 		function setUpHoles(){
 
-			holePositions = [[-30,0],[-15,0],[15,0],[30,0]];
+			holePositions = [[-30,100],[-15,100],[15,100],[30,100]];
 			var holeGeo = new THREE.CylinderGeometry(1.1, 1.1, 0.0 ,32);
 			var holeMat = new THREE.MeshPhongMaterial({color: 0x000000});
 

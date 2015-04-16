@@ -16,6 +16,8 @@ Tree = function() {
 	var treeTopMesh = new THREE.Mesh(treeTop, pineMat);
 	treeTopMesh.position.set(0*size,3.8,0*size);
 
+	treeGroup.add( treeTopMesh );
+
 	var treeMid = new THREE.CylinderGeometry(0.0*size, 5*size, 8.0*size ,14);
 	var treeMidMesh = new THREE.Mesh(treeMid, pineMat);
 	treeMidMesh.position.set(0*size,3,0*size);

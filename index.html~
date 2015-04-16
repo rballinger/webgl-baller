@@ -65,30 +65,110 @@
         <div class="container" ng-view>
             <!-- Partials insert here -->
         </div>
-
-		<img id="plane" src="./textures/toasty.jpg" />
-		<script>
-			$(function() {
-				var img = $("#plane"),
-					width = img.get(0).width,
-					screenWidth = $(window).width(),
-					duration = 5000;
-
-				function animatePlane() {
-					img.css("left", -width)
-					   .animate({
-						    "left": screenWidth
-						}, duration, animatePlane);
-				}
-
-				animatePlane();
-			});​
-		</script>
         <div id="footer">
             <div class="box">
                 2015 Baller. Created by Ryan Ballinger and Dan Berridge.
             </div>
         </div>
+
+
+
+
+<script id="vs0" type="x-shader/x-vertex">
+/* VERTEX SHADER */
+//varying vec4 col;
+varying vec3 my_pos;
+
+/* texture coord in THREE.js is "uv" */
+varying vec2 my_uv;
+
+void main()
+{
+    my_pos = position;
+    my_uv = uv; /* init from default attrib "uv" */
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+</script>
+
+<script id="fs0" type="x-shader/x-fragment">
+/* FRAGMENT SHADER */
+//precision mediump float;
+//varying vec4 col;
+varying vec3 my_pos;
+uniform vec4 color_dark;
+uniform sampler2D marb_tex;
+
+varying vec2 my_uv;
+
+void main()
+{
+    if (my_pos.z > 0.0) {
+        if (my_pos.x * my_pos.y < 0.0)
+           gl_FragColor = color_dark;
+        else
+           gl_FragColor = vec4 (0.0, 1.0, 0.2, 1.0);
+    }
+    else {
+        gl_FragColor = texture2D (marb_tex, my_uv);
+    }
+}
+</script>
+
+
+<script id="vs1" type="x-shader/x-vertex">
+varying vec4 v_color;
+
+const vec4 light_diffuse = vec4 (1.0, 1.0, 1.0, 1.0);
+const vec4 light_specular = vec4 (1.0, 1.0, 1.0, 1.0);
+const vec4 material_diffuse = vec4 (0.3, 0.7, 0.4, 1.0);
+const vec4 material_specular = vec4 (0.7, 0.1, 0.1, 1.0);
+
+/* assumed the light has been transfromed into Camera CF */
+const vec4 light_pos = vec4 (1, 0, 1, 1.0);
+
+void main()
+{
+   /* light direction is specified w.r.t to eye coordinate,
+    * if the light_direction is specified w.r.t to the world
+    * coordinate frame, we must also transform it to the eye
+    * coordinate (see ec_normal below) */
+
+   /* l vector */
+   vec4 ec_pos = modelViewMatrix * vec4(position, 1);
+   vec4 light_dir = light_pos - ec_pos;
+
+   /* original INCORRECT code :   light_dir = light_pos - position;  */
+
+   vec4 halfway = light_dir;
+   /* eye vector is now 0,0,1 */
+   halfway.z += 1.0;
+   halfway = normalize(halfway);
+   light_dir = normalize(light_dir);
+
+   /* calculate the vertex normal w.r.t to the
+    * camera/eye coordinate frame */
+   vec4 ec_normal = vec4(normalMatrix * normal, 1.0);
+
+   /* determine the diffuse lighting */
+   float n_dot_l = max (0.0, dot(ec_normal, light_dir));
+   /* determine the specular lighting */
+   float n_dot_h = max (0.0, dot(ec_normal, halfway));
+
+   v_color = n_dot_l * light_diffuse * material_diffuse;
+   if (n_dot_h > 0.0)
+      v_color += pow (n_dot_h,8.0) * light_specular * material_specular;
+   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}
+
+</script>
+
+<script id="fs1" type="x-shader/x-fragment">
+varying vec4 v_color;
+
+void main () {
+	gl_FragColor = v_color;
+}
+</script>
     </body>
 
 </html>
