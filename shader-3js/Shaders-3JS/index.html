@@ -135,7 +135,7 @@ varying vec2 my_uv;
 void main()
 {
     if (my_pos.z > 0.0) {
-        if (my_pos.x * my_pos.y < 0.0)
+        if (my_pos.x * my_pos.y > 5.0)
            gl_FragColor = color_dark;
         else
            gl_FragColor = vec4 (0.0, 1.0, 0.2, 1.0);

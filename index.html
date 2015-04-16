@@ -70,6 +70,112 @@
                 2015 Baller. Created by Ryan Ballinger and Dan Berridge.
             </div>
         </div>
+        <script id="tree-vs" type="x-shader/x-vertex">
+            /* VERTEX SHADER */
+            //varying vec4 col;
+            varying vec3 my_pos;
+
+            /* texture coord in THREE.js is "uv" */
+            varying vec2 my_uv;
+
+            void main()
+            {
+                my_pos = position;
+                my_uv = uv; /* init from default attrib "uv" */
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        </script>
+
+        <script id="tree-fs" type="x-shader/x-fragment">
+            /* FRAGMENT SHADER */
+            //precision mediump float;
+            //varying vec4 col;
+            varying vec3 my_pos;
+            uniform vec4 color_dark;
+            uniform sampler2D marb_tex;
+
+            varying vec2 my_uv;
+
+            void main()
+            {
+                //if (my_pos.z > 0.0) {
+                    gl_FragColor = color_dark;
+                //}
+                //else {
+                   //gl_FragColor = texture2D (marb_tex, my_uv);
+                //}
+            }
+        </script>
+
+
+        <script id="car-vs" type="x-shader/x-vertex">
+            varying vec3 my_pos;
+            varying vec3 my_normal;
+            varying mat3 my_normal_matrix;
+            varying mat4 my_modelview_matrix;
+
+            /* texture coord in THREE.js is "uv" */
+            varying vec2 my_uv;
+
+            void main()
+            {
+                my_normal_matrix = normalMatrix;
+                my_modelview_matrix = modelViewMatrix;
+                my_normal = normal;
+                my_pos = position;
+                my_uv = uv; /* init from default attrib "uv" */
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        </script>
+
+        <script id="car-fs" type="x-shader/x-fragment">
+            //varying vec4 v_color;
+            varying vec3 my_pos;
+            varying vec3 my_normal;
+            varying vec2 my_uv;
+            varying mat3 my_normal_matrix;
+            varying mat4 my_modelview_matrix;
+
+            const vec4 light_diffuse = vec4 (1.0, 1.0, 1.0, 1.0);
+            const vec4 light_specular = vec4 (1.0, 1.0, 1.0, 1.0);
+            const vec4 material_diffuse = vec4 (0.3, 0.7, 0.4, 1.0);
+            const vec4 material_specular = vec4 (0.7, 0.1, 0.1, 1.0);
+
+            /* assumed the light has been transformed into Camera CF */
+            const vec4 light_pos = vec4 (1, 0, 1, 1.0);
+
+            void main () {
+                /* light direction is specified w.r.t to eye coordinate,
+                * if the light_direction is specified w.r.t to the world
+                * coordinate frame, we must also transform it to the eye
+                * coordinate (see ec_normal below) */
+
+                /* l vector */
+                vec4 ec_pos = my_modelview_matrix * vec4(my_pos, 1);
+                vec4 light_dir = light_pos - ec_pos;
+
+                /* original INCORRECT code :   light_dir = light_pos - my_pos;  */
+
+                vec4 halfway = light_dir;
+                /* eye vector is now 0,0,1 */
+                halfway.z += 1.0;
+                halfway = normalize(halfway);
+                light_dir = normalize(light_dir);
+
+                /* calculate the vertex normal w.r.t to the
+                * camera/eye coordinate frame */
+                vec4 ec_normal = vec4(my_normal_matrix * my_normal, 1.0);
+
+                /* determine the diffuse lighting */
+                float n_dot_l = max (0.0, dot(ec_normal, light_dir));
+                /* determine the specular lighting */
+                float n_dot_h = max (0.0, dot(ec_normal, halfway));
+
+                gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0) * n_dot_l * light_diffuse * material_diffuse;
+                if (n_dot_h > 0.0)
+                    gl_FragColor += pow (n_dot_h,8.0) * light_specular * material_specular;
+            }
+        </script>
     </body>
 
 </html>
