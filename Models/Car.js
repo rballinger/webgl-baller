@@ -81,9 +81,9 @@ var Car = function () {
     }
 
     // bottom chassis
-    n1.x = -1;
+    n1.x = 0;
     n1.y = 0;
-    n1.z = 0;
+    n1.z = -1;
     n1.normalize();
     var tireSpace = 0;
     var check = 0;
@@ -208,8 +208,23 @@ var Car = function () {
 	var rand = Math.random() * (colors.length - 1);
 	var color = colors[Math.floor(rand)];
 
-    var carMat = new THREE.MeshPhongMaterial({color: color});
-    var carMesh = new THREE.Mesh(geometry, carMat);
+    var shaderProp = {
+        uniforms : {
+            color_dark : {
+                type: "v4",
+                value : new THREE.Vector4(0.5, 0.5, 0.5, 1.0)
+            },
+            marb_tex : {
+                type: "t",
+                value : THREE.ImageUtils.loadTexture("textures/wood.jpg")
+            }
+        },
+        vertexShader: document.getElementById("car-vs").textContent,
+        fragmentShader : document.getElementById("car-fs").textContent
+    };
+    var shaderMat = new THREE.ShaderMaterial(shaderProp);
+    //var carMat = new THREE.MeshPhongMaterial({color: color});
+    var carMesh = new THREE.Mesh(geometry, shaderMat);
 
     // create tires
     var tireFR = new Wheel();

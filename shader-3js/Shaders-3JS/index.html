@@ -54,8 +54,8 @@ require([], function(){
 				value : THREE.ImageUtils.loadTexture("texture/marble.jpg")
 			}
 		},
-		vertexShader: document.getElementById("vs1").textContent,
-		fragmentShader : document.getElementById("fs1").textContent
+		vertexShader: document.getElementById("vs0").textContent,
+		fragmentShader : document.getElementById("fs0").textContent
 	};
 	var shaderMat = new THREE.ShaderMaterial(shaderProp);
 	var mesh	= new THREE.Mesh( geometry, shaderMat );
@@ -135,7 +135,7 @@ varying vec2 my_uv;
 void main()
 {
     if (my_pos.z > 0.0) {
-        if (my_pos.x * my_pos.y < 0.0)
+        if (my_pos.x * my_pos.y > 5.0)
            gl_FragColor = color_dark;
         else
            gl_FragColor = vec4 (0.0, 1.0, 0.2, 1.0);

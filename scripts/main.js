@@ -398,7 +398,6 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
 
                 if (collisions.length > 0 && collisions[0].distance <= distance) {
                     if(i != 8){
-                        console.log("HIT!");
                         if(collisions.length == 1){
                             ranOver();
                             scene.remove(ballMesh);
