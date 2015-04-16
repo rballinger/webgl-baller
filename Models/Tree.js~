@@ -14,7 +14,9 @@ Tree = function() {
     pineTex.wrapT = THREE.RepeatWrapping;
 	var pineMat = new THREE.MeshPhongMaterial({color:0x696969, map:pineTex});
 	var treeTopMesh = new THREE.Mesh(treeTop, pineMat);
-	treeTopMesh.position.set(0*size,3.6,0*size);
+	treeTopMesh.position.set(0*size,3.8,0*size);
+
+	treeGroup.add( treeTopMesh );
 
 	var treeMid = new THREE.CylinderGeometry(0.0*size, 5*size, 8.0*size ,14);
 	var treeMidMesh = new THREE.Mesh(treeMid, pineMat);
