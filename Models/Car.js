@@ -36,8 +36,8 @@ var Car = function () {
     for(var i = 0; i < topPoints; i=i+2){
         if(i > roofStart && i < roofStart + 6){
             sectionHeight = CHASSIS_HEIGHT + OFF_GROUND + (ROOF * (i - roofStart) * 0.17);
-            n1.y = -SECTION_LEN;
-            n1.z = 0.17;
+            n1.y = 0.17;
+            n1.z = 1;
             n1.normalize();
         }else if(i >= roofStart + 6 && i < roofEnd){
             sectionHeight = CHASSIS_HEIGHT + OFF_GROUND + ROOF;
@@ -82,8 +82,8 @@ var Car = function () {
 
     // bottom chassis
     n1.x = 0;
-    n1.y = 0;
-    n1.z = -1;
+    n1.y = -1;
+    n1.z = 1;
     n1.normalize();
     var tireSpace = 0;
     var check = 0;
@@ -208,15 +208,15 @@ var Car = function () {
 	var rand = Math.random() * (colors.length - 1);
 	var color = colors[Math.floor(rand)];
 
+    var rValue = Math.random();
+    var gValue = Math.random();
+    var bValue = Math.random();
+
     var shaderProp = {
         uniforms : {
-            color_dark : {
+            random_color : {
                 type: "v4",
-                value : new THREE.Vector4(0.5, 0.5, 0.5, 1.0)
-            },
-            marb_tex : {
-                type: "t",
-                value : THREE.ImageUtils.loadTexture("textures/wood.jpg")
+                value : new THREE.Vector4(rValue, gValue, bValue, 1.0)
             }
         },
         vertexShader: document.getElementById("car-vs").textContent,

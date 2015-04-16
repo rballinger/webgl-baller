@@ -136,13 +136,18 @@
             varying mat3 my_normal_matrix;
             varying mat4 my_modelview_matrix;
 
+            uniform vec4 random_color;
+
             const vec4 light_diffuse = vec4 (1.0, 1.0, 1.0, 1.0);
             const vec4 light_specular = vec4 (1.0, 1.0, 1.0, 1.0);
+            const vec4 red = vec4 (1.0, 0, 0, 1.0);
+            const vec4 green = vec4 (0, 1.0, 0, 1.0);
+            const vec4 blue = vec4 (0, 0, 1.0, 1.0);
             const vec4 material_diffuse = vec4 (0.3, 0.7, 0.4, 1.0);
             const vec4 material_specular = vec4 (0.7, 0.1, 0.1, 1.0);
 
             /* assumed the light has been transformed into Camera CF */
-            const vec4 light_pos = vec4 (1, 0, 1, 1.0);
+            const vec4 light_pos = vec4 (0, 10, 0, 1.0);
 
             void main () {
                 /* light direction is specified w.r.t to eye coordinate,
@@ -171,7 +176,15 @@
                 /* determine the specular lighting */
                 float n_dot_h = max (0.0, dot(ec_normal, halfway));
 
-                gl_FragColor = vec4(0.5, 0.5, 0.5, 1.0) * n_dot_l * light_diffuse * material_diffuse;
+                gl_FragColor = n_dot_l * light_diffuse * material_diffuse;
+                if(my_pos.z <= 2.13 || my_pos.z >= 3.0
+                    || (my_pos.y >= 5.3 && my_pos.y <= 5.7)
+                    || ((my_pos.y >= 3.0 && my_pos.y <= 3.9) && (my_pos.x <= 0.1 || my_pos.x >= 3.9))
+                    || ((my_pos.y >= 7.0 && my_pos.y <= 7.8) && (my_pos.x <= 0.1 || my_pos.x >= 3.9))
+                ){
+                    gl_FragColor = n_dot_l * light_diffuse * random_color;
+                }
+
                 if (n_dot_h > 0.0)
                     gl_FragColor += pow (n_dot_h,8.0) * light_specular * material_specular;
             }
