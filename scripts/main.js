@@ -192,11 +192,15 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         var roadAry = [];
         var medianAry = [];
         var hold_i = 0;
+        var medianTex = THREE.ImageUtils.loadTexture("textures/grass.jpg");
+        medianTex.repeat.set(1, 1);
+        medianTex.wrapS = THREE.RepeatWrapping;
+        medianTex.wrapT = THREE.RepeatWrapping;
+        var roadTex = THREE.ImageUtils.loadTexture("textures/road.png");
+        roadTex.repeat.set(i + 1, 30);
+        roadTex.wrapS = THREE.RepeatWrapping;
+        roadTex.wrapT = THREE.RepeatWrapping;
         for(var i = 0; i < MAX_LANES; i++){
-            var roadTex = THREE.ImageUtils.loadTexture("textures/road.png");
-            roadTex.repeat.set(i + 1, 30);
-            roadTex.wrapS = THREE.RepeatWrapping;
-            roadTex.wrapT = THREE.RepeatWrapping;
             var road = new THREE.PlaneBufferGeometry(ROAD_WIDTH * (i + 1), totalArea1Width, 1, 5);
             var roadMat = new THREE.MeshPhongMaterial({map:roadTex});
             roadAry[i] = new THREE.Mesh(road, roadMat);
@@ -209,12 +213,12 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
             if(i == 0){
                 // starting median
                 median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH * 5, 150, 1, 5);
-                medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
+                medianMat = new THREE.MeshPhongMaterial({map:medianTex});
                 medianAry[i] = new THREE.Mesh(median, medianMat);
                 medianAry[i].translateX(-MEDIAN_WIDTH / 2 * 4, 0, 0);
             }else{
                 median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH, 150, 1, 5);
-                medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
+                medianMat = new THREE.MeshPhongMaterial({map:medianTex});
                 medianAry[i] = new THREE.Mesh(median,medianMat);
             }
             medianAry[i].rotateX(THREE.Math.degToRad(-90));
@@ -226,7 +230,8 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         // finish median
         var medianMesh;
         median = new THREE.PlaneBufferGeometry(MEDIAN_WIDTH * 5, 150, 1, 5);
-        medianMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
+
+        medianMat = new THREE.MeshPhongMaterial({map:medianTex});
         medianMesh = new THREE.Mesh(median, medianMat);
         medianMesh.translateX(-MEDIAN_WIDTH / 2 * 4, 0, 0);
 
