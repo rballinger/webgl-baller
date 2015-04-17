@@ -1,4 +1,4 @@
-<script id="vs0" type="x-shader/x-vertex">
+<script id="streelLightVertices" type="x-shader/x-vertex">
 /* VERTEX SHADER */
 varying vec3 my_pos;
 
@@ -13,23 +13,162 @@ void main()
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }
 </script>
-<script id="fs0" type="x-shader/x-fragment">
+<script id="streetLightFragments" type="x-shader/x-fragment">
 /* FRAGMENT SHADER */
-//precision mediump float;
 varying vec3 my_pos;
 uniform vec4 color_dark;
-uniform sampler2D marb_tex;
+uniform vec4 color_light;
 varying vec2 my_uv;
 
+void horizontalSpacing(int);
+
 void main(){
-    if (my_pos.z > 0.0) {
-        if (my_pos.x * my_pos.y < 0.0)
-           gl_FragColor = color_dark;
-        else
-           gl_FragColor = vec4 (0.8, 1.0, 0.7, 1.0);
-    }else {
-        gl_FragColor = texture2D (needle_tex, my_uv);
-    }
+
+	if(my_pos.y > 0.0 && my_pos.y < 0.15){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 0.15 && my_pos.y < 0.30){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 0.30 && my_pos.y < 0.45){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 0.45 && my_pos.y < 0.6){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 0.6 && my_pos.y < 0.75){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 0.75 && my_pos.y < 0.90){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 0.9 && my_pos.y < 1.05){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 1.05 && my_pos.y < 1.20){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 1.20 && my_pos.y < 1.35){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 1.35 && my_pos.y < 1.5){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 1.5 && my_pos.y < 1.65){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 1.65 && my_pos.y < 1.8){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 1.8 && my_pos.y < 1.95){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 1.95 && my_pos.y < 2.10){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 2.10 && my_pos.y < 2.25){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 2.25 && my_pos.y < 2.40){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 2.40 && my_pos.y < 2.55){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 2.55 && my_pos.y < 2.70){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 2.70 && my_pos.y < 2.85){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 2.85 && my_pos.y < 3.0){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 3.0 && my_pos.y < 3.15){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 3.15 && my_pos.y < 3.30){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 3.3 && my_pos.y < 3.45){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 3.45 && my_pos.y < 3.60){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 3.60 && my_pos.y < 3.75){
+		gl_FragColor = color_light;
+	}
+	if(my_pos.y > 3.75 && my_pos.y < 3.90){
+		gl_FragColor = color_dark;
+	}
+	if(my_pos.y > 3.90 && my_pos.y < 4.05){
+		gl_FragColor = color_light;
+	}
+	horizontalSpacing();
+}
+
+void horizontalSpacing(int changeColorOrder){
+		
+		if(changeColorOrder == 0){
+			if(my_pos.y > 0.0){
+				if(my_pos.x < 0.2 && my_pos.x > 0.1414){
+					gl_FragColor = color_light;
+				}
+				if(my_pos.x < 0.1414 && my_pos.x > 0.0){
+					gl_FragColor = color_dark;
+				}
+				if(my_pos.x < 0.0 && my_pos.x > -0.1414){
+					gl_FragColor = color_light;
+				}
+				if(my_pos.x < -0.1414 && my_pos.x > -0.2){
+					gl_FragColor = color_dark;
+				}
+			}else{
+				if(my_pos.x < 0.2 && my_pos.x > 0.1414){
+					gl_FragColor = color_dark;
+				}
+				if(my_pos.x < 0.1414 && my_pos.x > 0.0){
+					gl_FragColor = color_light;
+				}
+				if(my_pos.x < 0.0 && my_pos.x > -0.1414){
+					gl_FragColor = color_dark;
+				}
+				if(my_pos.x < -0.1414 && my_pos.x > -0.2){
+					gl_FragColor = color_light;
+				}
+			}
+		}else{
+			if(my_pos.y > 0.0){
+				if(my_pos.x < 0.2 && my_pos.x > 0.1414){
+					gl_FragColor = color_dark;
+				}
+				if(my_pos.x < 0.1414 && my_pos.x > 0.0){
+					gl_FragColor = color_light;
+				}
+				if(my_pos.x < 0.0 && my_pos.x > -0.1414){
+					gl_FragColor = color_dark;
+				}
+				if(my_pos.x < -0.1414 && my_pos.x > -0.2){
+					gl_FragColor = color_light;
+				}
+			}else{
+				if(my_pos.x < 0.2 && my_pos.x > 0.1414){
+					gl_FragColor = color_light;
+				}
+				if(my_pos.x < 0.1414 && my_pos.x > 0.0){
+					gl_FragColor = color_dark;
+				}
+				if(my_pos.x < 0.0 && my_pos.x > -0.1414){
+					gl_FragColor = color_light;
+				}
+				if(my_pos.x < -0.1414 && my_pos.x > -0.2){
+					gl_FragColor = color_dark;
+				}
+			}
+
+		}
+
 }
 </script>
 

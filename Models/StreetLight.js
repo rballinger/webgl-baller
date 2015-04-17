@@ -31,15 +31,15 @@ StreetLight = function(len) {
 		uniforms : {
 			color_dark : {
 				type: "v4",
-				value : new THREE.Vector4(0.8, 0.3, 0.1, 1.0)
+				value : new THREE.Vector4(0.0, 0.0, 0.0, 0.0)
 			},
-			needle_tex : {
-				type: "t",
-				value : THREE.ImageUtils.loadTexture("textures/pineNeedles.jpg")
+			color_light : {
+				type: "v4",
+				value : new THREE.Vector4(1.0, 1.0, 1.0, 1.0)
 			}
 		},
-		vertexShader: document.getElementById("vs0").textContent,
-		fragmentShader : document.getElementById("fs0").textContent
+		vertexShader: document.getElementById("streelLightVertices").textContent,
+		fragmentShader : document.getElementById("streetLightFragments").textContent
 	};
 
     // group objects together
@@ -47,7 +47,8 @@ StreetLight = function(len) {
 
     // post
     var postGeo = new THREE.CylinderGeometry(0.20, 0.20, 7.5, 27);
-    var post = new THREE.Mesh (postGeo, frameMat);
+	var shaderMat = new THREE.ShaderMaterial(shaderProp);
+    var post = new THREE.Mesh (postGeo, shaderMat);
 
     // base
     var baseGeo = new THREE.CylinderGeometry(0.7, 0.7, 1.0, 36);
@@ -66,7 +67,7 @@ StreetLight = function(len) {
     shade.position.set (8.4, -3.85, 0);
     base.position.set (6, -7.6, 0);
     post.position.set (6, -7.2, 0);
-    elbow.position.set (7.2, -3.5, 0);
+    elbow.position.set (7.2, -3.45, 0);
 
     // add primitive shapes to group to form street light structure
     group.add (shade);
