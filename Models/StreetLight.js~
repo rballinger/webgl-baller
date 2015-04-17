@@ -46,27 +46,27 @@ StreetLight = function(len) {
     var group = new THREE.Group();
 
     // post
-    var postGeo = new THREE.CylinderGeometry(0.20, 0.20, 10, 27);
+    var postGeo = new THREE.CylinderGeometry(0.20, 0.20, 7.5, 27);
     var post = new THREE.Mesh (postGeo, frameMat);
 
     // base
-    var baseGeo = new THREE.CylinderGeometry(0.7, 0.7, 1.0, 24);
+    var baseGeo = new THREE.CylinderGeometry(0.7, 0.7, 1.0, 36);
     var base = new THREE.Mesh (baseGeo, concrete1Mat);
 
     // elbow
-    var elbowGeo = new THREE.TorusGeometry(2, 0.15, 2, 24, Math.PI);
+    var elbowGeo = new THREE.TorusGeometry(1.2, 0.20, 28, 24, Math.PI);
     var elbow = new THREE.Mesh (elbowGeo, frameMat);
     elbow.rotateY (Math.PI);
 
     // base
-    var shadeGeo = new THREE.CylinderGeometry(0.2, 0.75, 0.2, 28);
+    var shadeGeo = new THREE.CylinderGeometry(0.2, 0.75, 0.8, 28);
     var shade = new THREE.Mesh (shadeGeo, baseMat);
 
     // position the primitive objects
-    shade.position.set (-6, 14, 8);
-    base.position.set (6, -7.4, 0);
-    post.position.set (6, -7.6, 0);
-    elbow.position.set (0, 15, 8);
+    shade.position.set (8.3, -3.85, 0);
+    base.position.set (6, -7.6, 0);
+    post.position.set (6, -7.2, 0);
+    elbow.position.set (7.2, -3.5, 0);
 
     // add primitive shapes to group to form street light structure
     group.add (shade);

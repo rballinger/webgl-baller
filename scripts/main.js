@@ -241,15 +241,15 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
          scene.add(streetLight);
          // spotlight for streetlight
          var streetLamp	= new THREE.SpotLight('white', 10, 40, Math.PI/4);
-         //streetLamp.position.set(8, 22, 16);
-         streetLamp.target.position.set(8, 0, 16);
+		 streetLamp.position.set(0, 4.2, 1.6);
+         streetLamp.target.position.set(0, -20, 0);
          streetLamp.target.updateMatrixWorld();
          scene.add( streetLamp );
          var helper = new THREE.SpotLightHelper(streetLamp);
          scene.add(helper);
 
         var trees = [];
-        var treeLineSpacing = [-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60];
+        var treeLineSpacing =[-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60];
 
         for(var i = 0; i < treeLineSpacing.length; i++){
 
@@ -258,7 +258,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
             var tree = new Tree();
 
             var cf = new THREE.Matrix4();
-            cf.makeTranslation(/*105*/ 5, 0, treeLineSpacing[i]);
+            cf.makeTranslation(105, 0, treeLineSpacing[i]);
             cf.decompose(tran, quat, vscale);
 
             tree.position.copy(tran);
