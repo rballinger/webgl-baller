@@ -6,16 +6,11 @@ var app = angular.module("gameApp", ['ngRoute']);
 
 app.config(function($routeProvider){
     $routeProvider.
-        when('/', {templateUrl:'partials/game.html', controller:'GameController'}).
-        otherwise({redirectTo: '/'});
-
+        when('/menu', {templateUrl:'partials/menu.html', controller:'MenuController'}).
+        when('/game', {templateUrl:'partials/game.html', controller:'GameController'}).
+        otherwise({redirectTo: '/menu'});
 });
-app.config(function($routeProvider){
-    $routeProvider.
-        when('/', {templateUrl:'shaderScripts/streetLightShader.html', controller:'GameController'}).
-        otherwise({redirectTo: '/'});
 
-});
 app.controller("GameController", ["$scope", "$window", function($scope, $window){
     // scope variables
     $scope.lives = 3;
@@ -23,7 +18,12 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
 
     $scope.getNumber = function(num){
         return new Array(num);
-    }
+    };
+
+    $scope.loadMenu = function(){
+        $window.location.assign("#/menu");
+        $window.location.reload();
+    };
 
     require([], function(){
         // detect WebGL
@@ -353,7 +353,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
                 messageDisplayed = true;
                 setTimeout(
                     function(){
-                        alert("You've been squished!");
+                        //alert("You've been squished!");
                         setTimeout(function(){
                             scene.remove(ballFlatMesh);
                             ballCF = new THREE.Matrix4();
@@ -369,6 +369,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
                             $scope.$apply();
                             if($scope.lives <= 0){
                                 alert("That was your last ball. You lose!");
+                                $scope.loadMenu();
 								$scope.lives = 3;
 								$scope.apply();
                             }
@@ -501,6 +502,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
 
 					if(allHoles.length == 0){
 						alert("You Won!");
+                        $scope.loadMenu();
 						// reset holes
 						setUpHoles();	
 						$scope.holesLeft = 4;
@@ -667,6 +669,119 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
                 camera.position.copy(tran);
                 camera.quaternion.copy(quat);
                 camera.lookAt(ballMesh.position);
+            }
+        });
+
+        //////////////////////////////////////////////////////////////////////////////////
+        //		render the scene						//
+        //////////////////////////////////////////////////////////////////////////////////
+        onRenderFcts.push(function(){
+            renderer.render( scene, camera );
+        });
+
+        //////////////////////////////////////////////////////////////////////////////////
+        //		Rendering Loop runner						//
+        //////////////////////////////////////////////////////////////////////////////////
+        var lastTimeMsec= null;
+        requestAnimationFrame(function animate(nowMsec){
+            // keep looping
+            requestAnimationFrame( animate );
+            // measure time
+            lastTimeMsec	= lastTimeMsec || nowMsec-1000/60;
+            var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec);
+            lastTimeMsec	= nowMsec;
+            // call each update function
+            onRenderFcts.forEach(function(onRenderFct){
+                onRenderFct(deltaMsec/1000, nowMsec/1000)
+            })
+        })
+    })
+}]);
+
+app.controller("MenuController", ["$scope", "$window", function($scope, $window){
+    $scope.loadGame = function(){
+        $window.location.assign("#/game");
+        $window.location.reload();
+    };
+
+    require([], function(){
+        // detect WebGL
+        if( !Detector.webgl ){
+            Detector.addGetWebGLMessage();
+            throw 'WebGL Not Available'
+        }
+        // setup webgl renderer full page
+        var renderer	= new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        // setup a scene and camera
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 1000);
+
+        var tran = new THREE.Vector3();
+        var quat = new THREE.Quaternion();
+        var vscale = new THREE.Vector3();
+
+        var ballRad = 0.5;
+        var cameraCF = new THREE.Matrix4();
+        cameraCF.multiply(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(45)));
+        cameraCF.multiply(new THREE.Matrix4().makeTranslation(0, 1, 3));
+        cameraCF.decompose(tran, quat, vscale);
+        camera.position.copy(tran);
+        camera.quaternion.copy(quat);
+        camera.lookAt(new THREE.Vector3(1,0.5,-1));
+
+        // determines if call-back will render new scene
+        var run = true;
+
+        // declare the rendering loop
+        var onRenderFcts= [];
+
+        // handle window resize events
+        var winResize	= new THREEx.WindowResize(renderer, camera);
+
+        // hold the current time for car repositioning in render
+        var holdTime;
+
+        //////////////////////////////////////////////////////////////////////////////////
+        //		lighting					//
+        //////////////////////////////////////////////////////////////////////////////////
+
+        var ambientLight= new THREE.AmbientLight( 0x343434 );
+        ambientLight.position.set(0, 20, 0);
+        scene.add( ambientLight);
+        var backLight	= new THREE.DirectionalLight('white', 2.0);
+        backLight.position.set(100, 50, -150);
+        scene.add( backLight );
+        //var helper2 = new THREE.DirectionalLightHelper(backLight, 20);
+        //scene.add(helper2);
+
+        //////////////////////////////////////////////////////////////////////////////////
+        //		add an object and make it move					//
+        //////////////////////////////////////////////////////////////////////////////////
+
+        // add ground
+        var ground = new THREE.PlaneBufferGeometry(100, 150, 1, 5);
+        var groundMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
+        var groundMesh = new THREE.Mesh(ground, groundMat);
+        groundMesh.rotateX(THREE.Math.degToRad(-90));
+        scene.add(groundMesh);
+
+        //var origin = new THREE.AxisHelper(30);
+        //scene.add(origin);
+
+        // create ball "william"
+        var ballTex = THREE.ImageUtils.loadTexture("textures/basketball.jpg");
+        var ball = new THREE.SphereGeometry(ballRad, 20, 20);
+        var ballMat = new THREE.MeshPhongMaterial({map:ballTex});;
+        var ballMesh = new THREE.Mesh(ball, ballMat);
+        ballMesh.translateY(ballRad);
+        ballMesh.direction = new THREE.Vector3(0, 0, 0);
+        scene.add(ballMesh);
+
+        onRenderFcts.push(function(delta, now){
+            if(run){
+                // nothing here
             }
         });
 

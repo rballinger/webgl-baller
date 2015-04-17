@@ -1,0 +1,31 @@
+<style>
+    #start-btn{
+        position:absolute;
+        background:none;
+        cursor:pointer;
+        left:55%;
+        top:10%;
+        color:orange;
+    }
+    #title{
+        position:absolute;
+        font-size:50px;
+    }
+    h1, h4{
+        color:orange;
+    }
+</style>
+<div id="title">
+    <h1 style="font-size:100px">Baller</h1>
+    <h4 style="font-size:30px;margin-left:100px;">A Frogger parody</h4>
+</div>
+<img id="start-btn" ng-click="loadGame()" src="images/start-btn.png">
+<script type="text/javascript">
+    $("#start-btn").hover(
+        function() {
+            $(this).attr("src", "images/start-btn-hover.png");
+        }, function() {
+            $(this).attr("src", "images/start-btn.png");
+        }
+    );
+</script>
