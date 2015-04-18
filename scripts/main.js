@@ -250,8 +250,8 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
          streetLamp.target.position.set(0, -20, 0);
          streetLamp.target.updateMatrixWorld();
          scene.add( streetLamp );
-         var helper = new THREE.SpotLightHelper(streetLamp);
-         scene.add(helper);
+         //var helper = new THREE.SpotLightHelper(streetLamp);
+         //scene.add(helper);
 
         var trees = [];
         var treeLineSpacing =[-60,-50,-40,-30,-20,-10,0,10,20,30,40,50,60];
