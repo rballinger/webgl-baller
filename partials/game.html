@@ -11,7 +11,7 @@
         height:auto;
         width:50%;
         background:transparent;
-        color:black;
+        color:yellow;
     }
 	#lives {
 		float:right;
@@ -27,10 +27,10 @@
 <div id="graphicsbox-game"></div>
 <div id="points">
 	<div id="holes">
-		<span style="font-size:24px">Holes Left: {{ holesLeft }}</span>
+		<span style="font-size:50px">Holes Left: {{ holesLeft }}</span>
 	</div>
 	<div id="lives">
-		<span style="font-size:24px">LIVES:</span>
+		<span style="font-size:50px">LIVES:</span>
 		<span ng-repeat="i in getNumber(lives) track by $index">
 		    <img src="images/life.png">
 		</span>
