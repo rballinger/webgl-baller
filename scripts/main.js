@@ -64,7 +64,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         // distance from 0,0,0 to either tunnel face
         var tunnelEnd = 95;
 
-        var totalCars = 4;
+        var totalCars = 10;
 
         //////////////////////////////////////////////////////////////////////////////////
         //		lighting					//
@@ -103,7 +103,7 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
                 dir = "right";
             }
             var randRoad = Math.floor(Math.random() * 5);
-            var randSpeed = Math.random() * (1.7 - 0.4) + 0.4;
+            var randSpeed = Math.random() * (1.7 - 0.4) + 0.7;
             // if car attempted to take an occupied lane run loop again
             if(!occupiedLanes[dir][randRoad]){
                 allCars[i] = createCar(dir,roadPositions[randRoad],randSpeed);
