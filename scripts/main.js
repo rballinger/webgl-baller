@@ -766,8 +766,12 @@ app.controller("MenuController", ["$scope", "$window", function($scope, $window)
         //////////////////////////////////////////////////////////////////////////////////
 
         // add ground
+        var groundTex = THREE.ImageUtils.loadTexture("textures/road.png");
+        groundTex.repeat.set(5, 10);
+        groundTex.wrapS = THREE.RepeatWrapping;
+        groundTex.wrapT = THREE.RepeatWrapping;
         var ground = new THREE.PlaneBufferGeometry(100, 150, 1, 5);
-        var groundMat = new THREE.MeshPhongMaterial({color:0x7CFC00});
+        var groundMat = new THREE.MeshPhongMaterial({map:groundTex});
         var groundMesh = new THREE.Mesh(ground, groundMat);
         groundMesh.rotateX(THREE.Math.degToRad(-90));
         scene.add(groundMesh);
