@@ -196,11 +196,11 @@ app.controller("GameController", ["$scope", "$window", function($scope, $window)
         medianTex.repeat.set(1, 1);
         medianTex.wrapS = THREE.RepeatWrapping;
         medianTex.wrapT = THREE.RepeatWrapping;
-        var roadTex = THREE.ImageUtils.loadTexture("textures/road.png");
-        roadTex.repeat.set(i + 1, 30);
-        roadTex.wrapS = THREE.RepeatWrapping;
-        roadTex.wrapT = THREE.RepeatWrapping;
         for(var i = 0; i < MAX_LANES; i++){
+            var roadTex = THREE.ImageUtils.loadTexture("textures/road.png");
+            roadTex.repeat.set(i + 1, 30);
+            roadTex.wrapS = THREE.RepeatWrapping;
+            roadTex.wrapT = THREE.RepeatWrapping;
             var road = new THREE.PlaneBufferGeometry(ROAD_WIDTH * (i + 1), totalArea1Width, 1, 5);
             var roadMat = new THREE.MeshPhongMaterial({map:roadTex});
             roadAry[i] = new THREE.Mesh(road, roadMat);
